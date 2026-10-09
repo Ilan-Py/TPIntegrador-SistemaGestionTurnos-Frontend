@@ -5,10 +5,11 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { AuthService } from '../../core/services/auth.service';
 import { Usuario } from '../../models/usuario.model';
+import { SlicePipe } from '@angular/common';
 
 @Component({
   selector: 'app-perfil',
-  imports: [MatCardModule, MatIconModule, MatProgressSpinnerModule, MatDividerModule],
+  imports: [MatCardModule, MatIconModule, MatProgressSpinnerModule, MatDividerModule, SlicePipe],
   templateUrl: './perfil.component.html',
   styleUrl: './perfil.component.css'
 })

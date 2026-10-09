@@ -1,20 +1,20 @@
 # TP Integrador — Frontend
 ## Sistema de Gestión de Turnos Médicos
 
-**IES Santa Fe · Programación 2 · 2026**
+**IES Santa Fe · Programación 2 · 2026**  
 **Autores:** Aaron Juárez & Ilan Pitashny
 
 ---
 
 ## Tecnologías
 
-| Herramienta | Versión |
-|---|---|
-| Node.js | 22.x LTS (recomendado) |
-| Angular CLI | 21.x |
-| Angular | 21.x |
-| Angular Material | 21.x |
-| TypeScript | ~5.9 |
+| Herramienta      | Versión   |
+|------------------|-----------|
+| Node.js          | 22.x LTS  |
+| Angular CLI      | 21.x      |
+| Angular          | 21.x      |
+| Angular Material | 21.x      |
+| TypeScript       | ~5.9      |
 
 ---
 
@@ -22,13 +22,14 @@
 
 - Node.js `^20.19.0`, `^22.12.0` o `^24.0.0`
 - Angular CLI 21: `npm install -g @angular/cli@21`
-- El backend corriendo en `http://localhost:4000`
+- El backend corriendo en `http://localhost:4000` (ver instrucciones abajo)
 
 ---
 
 ## Instalación y ejecución
 
 ```bash
+# Desde la carpeta clinica-frontend/
 npm install
 ng serve
 ```
@@ -37,13 +38,55 @@ La aplicación levanta en `http://localhost:4200`.
 
 ---
 
-## Backend
+## Conexión con el backend
 
-El frontend consume la API del backend en `http://localhost:4000`.
-La URL base está definida en `src/environments/environment.ts`.
+Este frontend consume la API del repositorio **TPIntegrador-SistemaGestionTurnos-Backend**.
 
-El backend debe tener CORS habilitado para `http://localhost:4200`.
-El backend actual usa `app.use(cors())` sin restricciones de origen, lo que es compatible.
+### 1. Configurar el backend
+
+```bash
+# Desde la carpeta backend/
+cp .env.example .env
+```
+
+Editá el `.env` con tus credenciales de MySQL:
+
+```env
+HOST=localhost
+DATABASE=clinica
+USER=root
+PASSWORD=tu_contraseña
+JWT_SECRET=ClaveSecretaTP2026
+JWT_EXPIRES_IN=8h
+PORT=4000
+```
+
+### 2. Crear la base de datos
+
+Ejecutá los scripts SQL en orden desde MySQL Workbench (o la terminal):
+
+```
+backend/scripts/clinica_ampliada.sql
+backend/scripts/usuarios_prueba.sql
+```
+
+### 3. Levantar el backend
+
+```bash
+npm install
+npm run dev
+# → Servidor corriendo en puerto 4000
+```
+
+### 4. Levantar el frontend
+
+```bash
+# En otra terminal, desde clinica-frontend/
+ng serve
+# → http://localhost:4200
+```
+
+La URL base de la API está definida en `src/environments/environment.ts` y puede cambiarse ahí si el backend corre en otro puerto.
 
 ---
 

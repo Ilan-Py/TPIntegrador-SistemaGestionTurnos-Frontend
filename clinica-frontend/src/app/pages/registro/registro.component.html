@@ -1,0 +1,131 @@
+<div class="registro-container">
+  <mat-card class="registro-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>person_add</mat-icon>
+      <mat-card-title>Crear cuenta</mat-card-title>
+      <mat-card-subtitle>Registrate como paciente</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+        <div class="row-2col">
+          <mat-form-field appearance="outline">
+            <mat-label>Nombre</mat-label>
+            <input matInput formControlName="nombre">
+            @if (campo('nombre').hasError('required') && campo('nombre').touched) {
+              <mat-error>Requerido</mat-error>
+            }
+            @if (campo('nombre').hasError('minlength') && campo('nombre').touched) {
+              <mat-error>Mínimo 2 caracteres</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Apellido</mat-label>
+            <input matInput formControlName="apellido">
+            @if (campo('apellido').hasError('required') && campo('apellido').touched) {
+              <mat-error>Requerido</mat-error>
+            }
+            @if (campo('apellido').hasError('minlength') && campo('apellido').touched) {
+              <mat-error>Mínimo 2 caracteres</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="row-2col">
+          <mat-form-field appearance="outline">
+            <mat-label>DNI</mat-label>
+            <input matInput formControlName="dni" placeholder="Ej: 38123456" inputmode="numeric">
+            <mat-icon matSuffix>badge</mat-icon>
+            @if (campo('dni').hasError('required') && campo('dni').touched) {
+              <mat-error>Requerido</mat-error>
+            }
+            @if (campo('dni').hasError('pattern') && campo('dni').touched) {
+              <mat-error>DNI inválido (solo números, 7-10 dígitos)</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Teléfono (opcional)</mat-label>
+            <input matInput formControlName="telefono" inputmode="tel">
+            <mat-icon matSuffix>phone</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" type="email">
+          <mat-icon matSuffix>email</mat-icon>
+          @if (campo('email').hasError('required') && campo('email').touched) {
+            <mat-error>Requerido</mat-error>
+          }
+          @if (campo('email').hasError('email') && campo('email').touched) {
+            <mat-error>Formato de email inválido</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Contraseña</mat-label>
+          <input matInput formControlName="password"
+                 [type]="mostrarPassword() ? 'text' : 'password'">
+          <button mat-icon-button matSuffix type="button" (click)="togglePassword()">
+            <mat-icon>{{ mostrarPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (campo('password').hasError('required') && campo('password').touched) {
+            <mat-error>Requerido</mat-error>
+          }
+          @if (campo('password').hasError('minlength') && campo('password').touched) {
+            <mat-error>Mínimo 6 caracteres</mat-error>
+          }
+        </mat-form-field>
+
+        <div class="row-2col">
+          <mat-form-field appearance="outline">
+            <mat-label>Fecha de nacimiento</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="fecha_nacimiento"
+                   [max]="fechaMax">
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            @if (campo('fecha_nacimiento').hasError('required') && campo('fecha_nacimiento').touched) {
+              <mat-error>Requerido</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Cobertura médica</mat-label>
+            <mat-select formControlName="id_cobertura">
+              @for (c of coberturas(); track c.id) {
+                <mat-option [value]="c.id">{{ c.nombre }}</mat-option>
+              }
+            </mat-select>
+            @if (campo('id_cobertura').hasError('required') && campo('id_cobertura').touched) {
+              <mat-error>Seleccioná una cobertura</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        @if (errorMensaje()) {
+          <div class="error-banner">
+            <mat-icon>error</mat-icon>
+            {{ errorMensaje() }}
+          </div>
+        }
+
+        <button mat-raised-button color="primary" type="submit"
+                class="full-width btn-submit" [disabled]="cargando()">
+          @if (cargando()) {
+            <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+            Crear cuenta
+          }
+        </button>
+
+      </form>
+    </mat-card-content>
+
+    <mat-card-actions>
+      <p>¿Ya tenés cuenta? <a routerLink="/login">Iniciá sesión</a></p>
+    </mat-card-actions>
+  </mat-card>
+</div>

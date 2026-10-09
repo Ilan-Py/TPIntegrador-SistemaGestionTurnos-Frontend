@@ -1,1 +1,23 @@
-/* You can add global styles to this file, and also import other style files */
+/* Importa el tema de Angular Material generado por ng add */
+@import '@angular/material/prebuilt-themes/azure-blue.css';
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: #f5f5f5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Snackbar de éxito */
+.snack-success {
+  --mdc-snackbar-container-color: #2e7d32;
+  --mdc-snackbar-supporting-text-color: white;
+}
+
+a {
+  text-decoration: none;
+}

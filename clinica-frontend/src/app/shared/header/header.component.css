@@ -1,0 +1,59 @@
+.header-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  gap: 8px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.brand-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.bienvenida {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  margin-right: 8px;
+}
+
+.usuario-nombre {
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin: 0 4px;
+}
+
+.btn-logout {
+  margin-left: 8px;
+}
+
+.menu-header {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rol-badge {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+@media (max-width: 768px) {
+  .bienvenida,
+  .usuario-nombre,
+  .btn-logout {
+    display: none;
+  }
+}

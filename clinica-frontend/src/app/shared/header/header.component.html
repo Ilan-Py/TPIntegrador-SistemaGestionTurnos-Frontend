@@ -1,0 +1,50 @@
+<mat-toolbar color="primary" class="header-toolbar">
+  <a routerLink="/" class="brand">
+    <mat-icon>local_hospital</mat-icon>
+    <span class="brand-name">Clínica Virtual</span>
+  </a>
+
+  <span class="spacer"></span>
+
+  @if (!estaLogueado()) {
+    <span class="bienvenida">Bienvenido a la clínica virtual</span>
+    <a mat-button routerLink="/login">Iniciar sesión</a>
+    <a mat-raised-button routerLink="/registro">Registrarse</a>
+  } @else {
+    <!-- Menú de navegación según rol -->
+    @for (item of menuItems(); track item.ruta) {
+      <a mat-button [routerLink]="item.ruta">{{ item.label }}</a>
+    }
+
+    <!-- Campana de notificaciones (semana 3) -->
+    <button mat-icon-button matTooltip="Notificaciones (próximamente)" disabled>
+      <mat-icon>notifications</mat-icon>
+    </button>
+
+    <!-- Info del usuario -->
+    <button mat-icon-button [matTooltip]="etiquetaRol()" [matMenuTriggerFor]="userMenu">
+      <mat-icon>{{ iconoRol() }}</mat-icon>
+    </button>
+
+    <span class="usuario-nombre">{{ nombreCompleto() }}</span>
+
+    <mat-menu #userMenu="matMenu">
+      <div class="menu-header">
+        <strong>{{ nombreCompleto() }}</strong>
+        <span class="rol-badge">{{ etiquetaRol() }}</span>
+      </div>
+      <mat-divider></mat-divider>
+      <a mat-menu-item routerLink="/perfil">
+        <mat-icon>account_circle</mat-icon>Mi perfil
+      </a>
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon>Cerrar sesión
+      </button>
+    </mat-menu>
+
+    <button mat-stroked-button (click)="logout()" class="btn-logout">
+      <mat-icon>logout</mat-icon>
+      Cerrar sesión
+    </button>
+  }
+</mat-toolbar>

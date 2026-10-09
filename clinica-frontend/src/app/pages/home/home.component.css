@@ -1,0 +1,57 @@
+.hero {
+  text-align: center;
+  padding: 48px 16px 32px;
+}
+
+.hero h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #1565c0;
+}
+
+.subtitulo {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 32px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.hero-actions a {
+  min-width: 160px;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+  margin-top: 48px;
+}
+
+.features mat-card {
+  padding: 8px;
+}
+
+.features mat-icon[mat-card-avatar] {
+  font-size: 36px;
+  width: 36px;
+  height: 36px;
+  color: #1565c0;
+}
+
+.welcome-logged {
+  padding: 48px 16px;
+  text-align: center;
+}
+
+.welcome-logged h2 {
+  font-size: 1.8rem;
+  color: #1565c0;
+  margin-bottom: 12px;
+}

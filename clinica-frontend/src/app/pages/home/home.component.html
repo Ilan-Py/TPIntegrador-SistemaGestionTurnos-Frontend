@@ -1,0 +1,64 @@
+@if (!estaLogueado()) {
+  <!-- Vista sin sesión -->
+  <div class="hero">
+    <h1>Bienvenido a Clínica Virtual</h1>
+    <p class="subtitulo">Gestioná tus turnos médicos de forma rápida y sencilla</p>
+
+    <div class="hero-actions">
+      <a mat-raised-button color="primary" routerLink="/login">
+        <mat-icon>login</mat-icon> Iniciar sesión
+      </a>
+      <a mat-stroked-button color="primary" routerLink="/registro">
+        <mat-icon>person_add</mat-icon> Registrarse
+      </a>
+    </div>
+  </div>
+
+  <div class="features">
+    <mat-card>
+      <mat-card-header>
+        <mat-icon mat-card-avatar color="primary">calendar_month</mat-icon>
+        <mat-card-title>Reservá turnos</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>Pedí turnos con especialistas de distintas sedes en pocos clics, sin llamadas ni esperas.</p>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-icon mat-card-avatar>history</mat-icon>
+        <mat-card-title>Historial clínico</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>Accedé a tu historial de consultas, diagnósticos y tratamientos desde cualquier dispositivo.</p>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-icon mat-card-avatar>notifications</mat-icon>
+        <mat-card-title>Notificaciones</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>Recibí recordatorios de tus turnos y avisos importantes sobre tu atención médica.</p>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-icon mat-card-avatar>health_and_safety</mat-icon>
+        <mat-card-title>Tu cobertura</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>Registrate con tu cobertura médica y gestioná turnos con la información ya cargada.</p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+} @else {
+  <!-- Vista con sesión -->
+  <div class="welcome-logged">
+    <h2>Hola, {{ usuario()?.nombre }}!</h2>
+    <p>¿Qué querés hacer hoy? Elegí una opción del menú.</p>
+  </div>
+}

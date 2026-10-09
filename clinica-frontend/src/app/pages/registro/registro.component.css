@@ -1,0 +1,57 @@
+.registro-container {
+  display: flex;
+  justify-content: center;
+  padding-top: 24px;
+}
+
+.registro-card {
+  width: 100%;
+  max-width: 600px;
+  padding: 8px;
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 4px;
+}
+
+@media (max-width: 480px) {
+  .row-2col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.btn-submit {
+  margin-top: 8px;
+  height: 44px;
+}
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #fde8e8;
+  color: #c62828;
+  padding: 10px 14px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+
+mat-card-actions {
+  padding: 8px 16px 16px;
+  text-align: center;
+}
+
+mat-card-actions a {
+  color: #1565c0;
+  font-weight: 500;
+}

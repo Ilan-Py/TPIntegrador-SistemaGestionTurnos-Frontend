@@ -1,0 +1,68 @@
+<div class="perfil-container">
+  @if (cargando()) {
+    <div class="loading">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (error()) {
+    <div class="error-banner">
+      <mat-icon>error</mat-icon> {{ error() }}
+    </div>
+  } @else if (usuario(); as u) {
+    <mat-card class="perfil-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>account_circle</mat-icon>
+        <mat-card-title>{{ u.nombre }} {{ u.apellido }}</mat-card-title>
+        <mat-card-subtitle>{{ etiquetaRol[u.rol] }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <mat-divider></mat-divider>
+        <div class="info-grid">
+          <div class="info-item">
+            <mat-icon>badge</mat-icon>
+            <div>
+              <span class="label">DNI</span>
+              <span class="valor">{{ u.dni }}</span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <mat-icon>email</mat-icon>
+            <div>
+              <span class="label">Email</span>
+              <span class="valor">{{ u.email }}</span>
+            </div>
+          </div>
+
+          @if (u.telefono) {
+            <div class="info-item">
+              <mat-icon>phone</mat-icon>
+              <div>
+                <span class="label">Teléfono</span>
+                <span class="valor">{{ u.telefono }}</span>
+              </div>
+            </div>
+          }
+
+          @if (u.fecha_nacimiento) {
+            <div class="info-item">
+              <mat-icon>cake</mat-icon>
+              <div>
+                <span class="label">Fecha de nacimiento</span>
+                <span class="valor">{{ u.fecha_nacimiento | slice:0:10 }}</span>
+              </div>
+            </div>
+          }
+
+          <div class="info-item">
+            <mat-icon>admin_panel_settings</mat-icon>
+            <div>
+              <span class="label">Rol</span>
+              <span class="valor">{{ etiquetaRol[u.rol] }}</span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

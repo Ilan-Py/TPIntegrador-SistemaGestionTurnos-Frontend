@@ -10,6 +10,7 @@ import {
   Usuario,
   ApiResponse
 } from '../../models/usuario.model';
+import { normalizarRol } from '../utils/rol.util';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -30,7 +31,12 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/login`, datos).pipe(
       tap(res => {
         if (res.datos?.token) {
-          this.guardarSesion(res.datos.token, res.datos.usuario);
+          // Normaliza el rol para que la sesión y los guards usen el mismo formato.
+          const rol = normalizarRol(res.datos.usuario.rol);
+          if (rol) {
+            // Solo guarda la sesión cuando el backend devuelve un rol reconocido.
+            this.guardarSesion(res.datos.token, { ...res.datos.usuario, rol });
+          }
         }
       })
     );

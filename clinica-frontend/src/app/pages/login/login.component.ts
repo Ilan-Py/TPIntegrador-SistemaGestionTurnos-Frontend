@@ -8,6 +8,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../core/services/auth.service';
+import { normalizarRol } from '../../core/utils/rol.util';
+
+// Asocia cada rol devuelto por el backend con la sección a la que debe entrar.
+const rutaPorRol = {
+  administrador: '/admin',
+  medico: '/medico',
+  operador: '/operador',
+  paciente: '/paciente'
+} as const;
 
 @Component({
   selector: 'app-login',
@@ -57,7 +66,18 @@ export class LoginComponent {
       next: (res) => {
         this.cargando.set(false);
         if (res.datos?.token) {
-          this.router.navigate(['/']);
+          // Normaliza el rol antes de buscar la ruta correspondiente.
+          const rol = normalizarRol(res.datos.usuario.rol);
+          // Si el rol no se reconoce, no intenta navegar con una ruta indefinida.
+          const ruta = rol ? rutaPorRol[rol] : undefined;
+
+          if (ruta) {
+            // Redirige al usuario a la ruta definida para su rol.
+            this.router.navigate([ruta]);
+          } else {
+            // Informa que el backend devolvió un rol sin ruta configurada.
+            this.errorMensaje.set('El servidor devolvió un rol desconocido.');
+          }
         } else {
           this.errorMensaje.set(res.estado ?? 'Error al iniciar sesión.');
         }

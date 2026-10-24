@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { rolGuard } from './core/guards/rol.guard';
+import { M } from '@angular/cdk/keycodes';
 
 export const routes: Routes = [
   {
@@ -26,15 +27,20 @@ export const routes: Routes = [
     path: 'admin',
     canActivate: [authGuard, rolGuard],
     data: { roles: ['administrador'] },
+    loadComponent: () => import('./pages/admin/admin.component').then(m => m.AdminComponent),
     children: [
       {
-        path: '',
-        loadComponent: () => import('./pages/en-construccion/en-construccion.component').then(m => m.EnConstruccionComponent)
+        path: 'sedes',
+        loadComponent: () => import('./pages/admin/admin-sedes/admin-sedes.component').then(m => m.AdminSedesComponent)
       },
       {
-        path: '**',
-        loadComponent: () => import('./pages/en-construccion/en-construccion.component').then(m => m.EnConstruccionComponent)
-      }
+        path: 'especialidades',
+        loadComponent: () => import('./pages/admin/admin-especialidades/admin-especialidades.component').then(m => m.AdminEspecialidadesComponent)
+        },
+      {
+        path: 'coberturas',
+        loadComponent: () => import('./pages/admin/admin-coberturas/admin-coberturas.component').then(m => m.AdminCoberturasComponent)
+        }
     ]
   },
 

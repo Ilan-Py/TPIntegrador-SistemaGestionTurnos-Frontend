@@ -1,0 +1,19 @@
+.coberturas {
+  margin: 40px auto 0;
+  padding: 24px;
+  max-width: 720px;
+  border-radius: 16px;
+  background: #f5faff;
+  box-shadow: 0 6px 16px rgb(21 101 192 / 12%);
+  text-align: center;
+}
+
+.coberturas h2 {
+  margin: 0 0 12px;
+  color: #1565c0;
+}
+
+.coberturas p {
+  margin: 0 0 20px;
+  color: #555;
+}

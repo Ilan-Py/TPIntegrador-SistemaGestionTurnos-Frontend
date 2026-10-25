@@ -1,5 +1,175 @@
 <section class="sedes" aria-labelledby="titulo-sedes">
-  <h2 id="titulo-sedes">Gestión de sedes</h2>
-  <p>Desde aquí podrás administrar las sedes de la clínica.</p>
-  <a mat-stroked-button routerLink="/admin">Volver al panel</a>
+  <header class="encabezado">
+    <div>
+      <h2 id="titulo-sedes">Gestión de sedes</h2>
+      <p>Consultá, buscá y administrá las sedes de la clínica.</p>
+    </div>
+    <a mat-stroked-button routerLink="/admin">Volver al panel</a>
+  </header>
+
+  <section class="formulario" aria-labelledby="titulo-formulario">
+    <h3 id="titulo-formulario">
+      {{ editandoId() === null ? 'Agregar sede' : 'Modificar sede' }}
+    </h3>
+    <form [formGroup]="form" (ngSubmit)="guardar()">
+      <div class="campos-formulario">
+        <mat-form-field appearance="outline">
+          <mat-label>Nombre de la sede</mat-label>
+          <input matInput formControlName="nombre" maxlength="100" autocomplete="off">
+          <mat-hint>Entre 2 y 100 caracteres.</mat-hint>
+          @if (form.controls.nombre.hasError('required') && form.controls.nombre.touched) {
+            <mat-error>El nombre es obligatorio.</mat-error>
+          }
+          @if (form.controls.nombre.hasError('pattern') && form.controls.nombre.touched) {
+            <mat-error>El nombre no puede contener solo espacios.</mat-error>
+          }
+          @if (form.controls.nombre.hasError('minlength') && form.controls.nombre.touched) {
+            <mat-error>El nombre debe tener al menos 2 caracteres.</mat-error>
+          }
+          @if (form.controls.nombre.hasError('maxlength') && form.controls.nombre.touched) {
+            <mat-error>El nombre no puede superar los 100 caracteres.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Dirección</mat-label>
+          <input matInput formControlName="direccion" maxlength="100" autocomplete="street-address">
+          <mat-hint>Entre 2 y 100 caracteres.</mat-hint>
+          @if (form.controls.direccion.hasError('required') && form.controls.direccion.touched) {
+            <mat-error>La dirección es obligatoria.</mat-error>
+          }
+          @if (form.controls.direccion.hasError('pattern') && form.controls.direccion.touched) {
+            <mat-error>La dirección no puede contener solo espacios.</mat-error>
+          }
+          @if (form.controls.direccion.hasError('minlength') && form.controls.direccion.touched) {
+            <mat-error>La dirección debe tener al menos 2 caracteres.</mat-error>
+          }
+          @if (form.controls.direccion.hasError('maxlength') && form.controls.direccion.touched) {
+            <mat-error>La dirección no puede superar los 100 caracteres.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Teléfono</mat-label>
+          <input
+            matInput
+            formControlName="telefono"
+            type="tel"
+            maxlength="15"
+            autocomplete="tel"
+            inputmode="tel"
+          >
+          <mat-hint>Entre 7 y 15 caracteres.</mat-hint>
+          @if (form.controls.telefono.hasError('required') && form.controls.telefono.touched) {
+            <mat-error>El teléfono es obligatorio.</mat-error>
+          }
+          @if (form.controls.telefono.hasError('minlength') && form.controls.telefono.touched) {
+            <mat-error>El teléfono debe tener al menos 7 caracteres.</mat-error>
+          }
+          @if (form.controls.telefono.hasError('maxlength') && form.controls.telefono.touched) {
+            <mat-error>El teléfono no puede superar los 15 caracteres.</mat-error>
+          }
+          @if (form.controls.telefono.hasError('pattern') && form.controls.telefono.touched) {
+            <mat-error>Ingresá un teléfono válido con al menos un número.</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <div class="acciones-formulario">
+        <button mat-flat-button color="primary" type="submit" [disabled]="guardando()">
+          {{ guardando() ? 'Guardando...' : editandoId() === null ? 'Agregar sede' : 'Guardar cambios' }}
+        </button>
+        @if (editandoId() !== null) {
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="cancelarEdicion()"
+            [disabled]="guardando()"
+          >
+            Cancelar
+          </button>
+        }
+      </div>
+    </form>
+  </section>
+
+  @if (errorMensaje()) {
+    <div class="mensaje-error" role="alert">
+      <mat-icon aria-hidden="true">error</mat-icon>
+      <span>{{ errorMensaje() }}</span>
+    </div>
+  }
+
+  <section class="listado" aria-labelledby="titulo-listado">
+    <div class="listado-encabezado">
+      <h3 id="titulo-listado">Sedes registradas</h3>
+      <mat-form-field appearance="outline" class="filtro">
+        <mat-label>Buscar por nombre</mat-label>
+        <input
+          matInput
+          type="search"
+          [value]="filtro()"
+          (input)="actualizarFiltro($event)"
+          autocomplete="off"
+        >
+        <mat-icon matSuffix aria-hidden="true">search</mat-icon>
+        <mat-hint>La búsqueda se realiza por nombre de sede.</mat-hint>
+      </mat-form-field>
+    </div>
+
+    <div class="tabla-contenedor">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Nombre</th>
+            <th scope="col">Dirección</th>
+            <th scope="col">Teléfono</th>
+            <th scope="col" class="columna-acciones">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (sede of sedesFiltradas(); track sede.id) {
+            <tr>
+              <td data-label="Nombre">{{ sede.nombre }}</td>
+              <td data-label="Dirección">{{ sede.direccion }}</td>
+              <td data-label="Teléfono">{{ sede.telefono }}</td>
+              <td data-label="Acciones" class="acciones-fila">
+                <button
+                  mat-stroked-button
+                  type="button"
+                  (click)="editar(sede)"
+                  [disabled]="guardando() || eliminandoId() !== null"
+                  [attr.aria-label]="'Modificar sede ' + sede.nombre"
+                >
+                  Modificar
+                </button>
+                <button
+                  mat-stroked-button
+                  type="button"
+                  color="warn"
+                  (click)="eliminar(sede)"
+                  [disabled]="guardando() || eliminandoId() !== null"
+                  [attr.aria-label]="'Eliminar sede ' + sede.nombre"
+                >
+                  {{ eliminandoId() === sede.id ? 'Eliminando...' : 'Eliminar' }}
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="4" class="estado-vacio">
+                @if (cargando()) {
+                  Cargando sedes...
+                } @else if (filtro().trim()) {
+                  No hay sedes cuyo nombre coincida con la búsqueda.
+                } @else {
+                  No hay sedes registradas.
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
 </section>

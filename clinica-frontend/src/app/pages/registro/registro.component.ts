@@ -59,7 +59,7 @@ export class RegistroComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.coberturaService.listar().subscribe({
+    this.coberturaService.listarPublicas().subscribe({
       next: (res) => {
         if (res.datos) this.coberturas.set(res.datos);
       },

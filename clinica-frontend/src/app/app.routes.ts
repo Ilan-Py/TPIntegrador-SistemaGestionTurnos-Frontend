@@ -30,6 +30,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/admin/admin.component').then(m => m.AdminComponent),
     children: [
       {
+        path: '',
+        pathMatch: 'full',
+        loadComponent: () => import('./pages/admin/admin-home/admin-home').then(m => m.AdminHome)
+      },
+      {
         path: 'sedes',
         loadComponent: () => import('./pages/admin/admin-sedes/admin-sedes.component').then(m => m.AdminSedesComponent)
       },

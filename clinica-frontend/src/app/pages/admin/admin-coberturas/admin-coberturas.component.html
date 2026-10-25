@@ -1,5 +1,131 @@
 <section class="coberturas" aria-labelledby="titulo-coberturas">
-  <h2 id="titulo-coberturas">Gestión de coberturas</h2>
-  <p>Desde aquí podrás administrar las coberturas de la clínica.</p>
-  <a mat-stroked-button routerLink="/admin">Volver al panel</a>
+  <header class="encabezado">
+    <div>
+      <h2 id="titulo-coberturas">Gestión de coberturas</h2>
+      <p>Consultá, buscá y administrá las coberturas de la clínica.</p>
+    </div>
+    <a mat-stroked-button routerLink="/admin">Volver al panel</a>
+  </header>
+
+  <section class="formulario" aria-labelledby="titulo-formulario">
+    <h3 id="titulo-formulario">
+      {{ editandoId() === null ? 'Agregar cobertura' : 'Modificar cobertura' }}
+    </h3>
+    <form [formGroup]="form" (ngSubmit)="guardar()">
+      <mat-form-field appearance="outline" class="campo-nombre">
+        <mat-label>Nombre de la cobertura</mat-label>
+        <input
+          matInput
+          formControlName="nombre"
+          maxlength="100"
+          autocomplete="off"
+          aria-describedby="ayuda-nombre"
+        >
+        <mat-hint id="ayuda-nombre">Entre 2 y 100 caracteres.</mat-hint>
+        @if (form.controls.nombre.hasError('required') && form.controls.nombre.touched) {
+          <mat-error>El nombre es obligatorio.</mat-error>
+        }
+        @if (form.controls.nombre.hasError('pattern') && form.controls.nombre.touched) {
+          <mat-error>El nombre no puede contener solo espacios.</mat-error>
+        }
+        @if (form.controls.nombre.hasError('minlength') && form.controls.nombre.touched) {
+          <mat-error>El nombre debe tener al menos 2 caracteres.</mat-error>
+        }
+        @if (form.controls.nombre.hasError('maxlength') && form.controls.nombre.touched) {
+          <mat-error>El nombre no puede superar los 100 caracteres.</mat-error>
+        }
+      </mat-form-field>
+
+      <div class="acciones-formulario">
+        <button mat-flat-button color="primary" type="submit" [disabled]="guardando()">
+          {{ guardando() ? 'Guardando...' : editandoId() === null ? 'Agregar' : 'Guardar cambios' }}
+        </button>
+        @if (editandoId() !== null) {
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="cancelarEdicion()"
+            [disabled]="guardando()"
+          >
+            Cancelar
+          </button>
+        }
+      </div>
+    </form>
+  </section>
+
+  @if (errorMensaje()) {
+    <div class="mensaje-error" role="alert">
+      <mat-icon aria-hidden="true">error</mat-icon>
+      <span>{{ errorMensaje() }}</span>
+    </div>
+  }
+
+  <section class="listado" aria-labelledby="titulo-listado">
+    <div class="listado-encabezado">
+      <h3 id="titulo-listado">Coberturas registradas</h3>
+      <mat-form-field appearance="outline" class="filtro">
+        <mat-label>Buscar cobertura</mat-label>
+        <input
+          matInput
+          type="search"
+          [value]="filtro()"
+          (input)="actualizarFiltro($event)"
+          autocomplete="off"
+        >
+        <mat-icon matSuffix aria-hidden="true">search</mat-icon>
+      </mat-form-field>
+    </div>
+
+    <div class="tabla-contenedor">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Nombre</th>
+            <th scope="col" class="columna-acciones">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (cobertura of coberturasFiltradas(); track cobertura.id) {
+            <tr>
+              <td>{{ cobertura.nombre }}</td>
+              <td class="acciones-fila">
+                <button
+                  mat-stroked-button
+                  type="button"
+                  (click)="editar(cobertura)"
+                  [disabled]="guardando() || eliminandoId() !== null"
+                  [attr.aria-label]="'Modificar ' + cobertura.nombre"
+                >
+                  Modificar
+                </button>
+                <button
+                  mat-stroked-button
+                  type="button"
+                  color="warn"
+                  (click)="eliminar(cobertura)"
+                  [disabled]="guardando() || eliminandoId() !== null"
+                  [attr.aria-label]="'Eliminar ' + cobertura.nombre"
+                >
+                  {{ eliminandoId() === cobertura.id ? 'Eliminando...' : 'Eliminar' }}
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="2" class="estado-vacio">
+                @if (cargando()) {
+                  Cargando coberturas...
+                } @else if (filtro().trim()) {
+                  No hay coberturas que coincidan con la búsqueda.
+                } @else {
+                  No hay coberturas registradas.
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
 </section>

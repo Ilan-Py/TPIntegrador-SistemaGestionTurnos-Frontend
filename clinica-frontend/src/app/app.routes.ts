@@ -45,7 +45,11 @@ export const routes: Routes = [
       {
         path: 'coberturas',
         loadComponent: () => import('./pages/admin/admin-coberturas/admin-coberturas.component').then(m => m.AdminCoberturasComponent)
-        }
+      },
+      {
+        path: 'usuarios',
+        loadComponent: () => import('./pages/admin/admin-usuarios/admin-usuarios.component').then(m => m.AdminUsuariosComponent)
+      }
     ]
   },
 

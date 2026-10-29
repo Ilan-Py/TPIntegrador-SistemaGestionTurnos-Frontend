@@ -1,0 +1,282 @@
+<section class="usuarios" aria-labelledby="titulo-usuarios">
+  <header class="encabezado">
+    <div>
+      <h2 id="titulo-usuarios">Gestión de usuarios</h2>
+      <p>Buscá, consultá y administrá las cuentas de la clínica.</p>
+    </div>
+    <a mat-stroked-button routerLink="/admin">Volver al panel</a>
+  </header>
+
+  <section class="formulario" aria-labelledby="titulo-formulario">
+    <h3 id="titulo-formulario">
+      {{ editandoId() === null ? 'Dar de alta usuario' : 'Modificar usuario' }}
+    </h3>
+    <p class="ayuda-formulario">
+      Las altas permiten crear operadores, médicos y administradores. También podés editar pacientes ya registrados.
+    </p>
+
+    <form [formGroup]="form" (ngSubmit)="guardar()">
+      <div class="campos-formulario">
+        <mat-form-field appearance="outline">
+          <mat-label>Nombre</mat-label>
+          <input matInput formControlName="nombre" maxlength="30" autocomplete="given-name">
+          @if (form.controls.nombre.hasError('required') && form.controls.nombre.touched) {
+            <mat-error>El nombre es obligatorio.</mat-error>
+          }
+          @if (form.controls.nombre.hasError('minlength') && form.controls.nombre.touched) {
+            <mat-error>Ingresá al menos 2 caracteres.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Apellido</mat-label>
+          <input matInput formControlName="apellido" maxlength="30" autocomplete="family-name">
+          @if (form.controls.apellido.hasError('required') && form.controls.apellido.touched) {
+            <mat-error>El apellido es obligatorio.</mat-error>
+          }
+          @if (form.controls.apellido.hasError('minlength') && form.controls.apellido.touched) {
+            <mat-error>Ingresá al menos 2 caracteres.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>DNI</mat-label>
+          <input matInput formControlName="dni" inputmode="numeric" maxlength="8" autocomplete="off">
+          @if (form.controls.dni.invalid && form.controls.dni.touched) {
+            <mat-error>Ingresá un DNI de 7 u 8 números.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Correo electrónico</mat-label>
+          <input matInput formControlName="email" type="email" maxlength="30" autocomplete="email">
+          @if (form.controls.email.invalid && form.controls.email.touched) {
+            <mat-error>Ingresá un correo válido de hasta 30 caracteres.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Teléfono</mat-label>
+          <input matInput formControlName="telefono" type="tel" maxlength="10" autocomplete="tel">
+          @if (form.controls.telefono.invalid && form.controls.telefono.touched) {
+            <mat-error>Ingresá un teléfono válido (máximo 10 caracteres).</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Fecha de nacimiento</mat-label>
+          <input matInput formControlName="fecha_nacimiento" type="date" autocomplete="bday">
+          @if (form.controls.fecha_nacimiento.hasError('required') && form.controls.fecha_nacimiento.touched) {
+            <mat-error>La fecha de nacimiento es obligatoria.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Tipo de usuario</mat-label>
+          <mat-select
+            formControlName="rol"
+            (selectionChange)="actualizarCamposRol()"
+            [disabled]="editandoId() !== null"
+          >
+            @if (editandoId() !== null) {
+              <mat-option value="paciente">Paciente</mat-option>
+            }
+            <mat-option value="operador">Operador</mat-option>
+            <mat-option value="medico">Médico</mat-option>
+            <mat-option value="administrador">Administrador</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        @if (form.controls.rol.value === 'operador' || form.controls.rol.value === 'medico') {
+          <mat-form-field appearance="outline">
+            <mat-label>Sede asignada</mat-label>
+            <mat-select formControlName="id_sede">
+              @for (sede of sedes(); track sede.id) {
+                <mat-option [value]="sede.id">{{ sede.nombre }}</mat-option>
+              }
+            </mat-select>
+            @if (form.controls.id_sede.hasError('required') && form.controls.id_sede.touched) {
+              <mat-error>Seleccioná una sede.</mat-error>
+            }
+          </mat-form-field>
+        }
+
+        @if (form.controls.rol.value === 'medico') {
+          <mat-form-field appearance="outline">
+            <mat-label>Especialidades</mat-label>
+            <mat-select formControlName="id_especialidades" multiple>
+              @for (especialidad of especialidades(); track especialidad.id) {
+                <mat-option [value]="especialidad.id">{{ especialidad.descripcion }}</mat-option>
+              }
+            </mat-select>
+            @if (form.controls.id_especialidades.hasError('required') && form.controls.id_especialidades.touched) {
+              <mat-error>Seleccioná al menos una especialidad.</mat-error>
+            }
+          </mat-form-field>
+        }
+
+        @if (form.controls.rol.value === 'paciente') {
+          <mat-form-field appearance="outline">
+            <mat-label>Cobertura (opcional)</mat-label>
+            <mat-select formControlName="id_cobertura">
+              <mat-option [value]="null">Sin cobertura</mat-option>
+              @for (cobertura of coberturas(); track cobertura.id) {
+                <mat-option [value]="cobertura.id">{{ cobertura.nombre }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        }
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ editandoId() === null ? 'Contraseña inicial' : 'Nueva contraseña (opcional)' }}</mat-label>
+          <input
+            matInput
+            formControlName="password"
+            type="password"
+            [autocomplete]="editandoId() === null ? 'new-password' : 'off'"
+          >
+          <mat-hint>{{ editandoId() === null ? 'Mínimo 6 caracteres.' : 'Dejá vacío para conservarla.' }}</mat-hint>
+          @if (form.controls.password.hasError('required') && form.controls.password.touched) {
+            <mat-error>La contraseña inicial es obligatoria.</mat-error>
+          }
+          @if (form.controls.password.hasError('minlength') && form.controls.password.touched) {
+            <mat-error>Debe tener al menos 6 caracteres.</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <div class="acciones-formulario">
+        <button mat-flat-button color="primary" type="submit" [disabled]="guardando()">
+          {{ guardando() ? 'Guardando...' : editandoId() === null ? 'Dar de alta' : 'Guardar cambios' }}
+        </button>
+        @if (editandoId() !== null) {
+          <button mat-stroked-button type="button" (click)="cancelarEdicion()" [disabled]="guardando()">
+            Cancelar edición
+          </button>
+        }
+      </div>
+    </form>
+  </section>
+
+  @if (errorMensaje()) {
+    <div class="mensaje-error" role="alert">
+      <mat-icon aria-hidden="true">error</mat-icon>
+      <span>{{ errorMensaje() }}</span>
+    </div>
+  }
+  @if (mensajeCatalogos()) {
+    <div class="mensaje-error" role="alert">
+      <mat-icon aria-hidden="true">error</mat-icon>
+      <span>{{ mensajeCatalogos() }}</span>
+    </div>
+  }
+
+  <section class="listado" aria-labelledby="titulo-listado">
+    <div class="listado-encabezado">
+      <div>
+        <h3 id="titulo-listado">Usuarios registrados</h3>
+        <p>{{ total() }} usuario(s) en total</p>
+      </div>
+    </div>
+
+    <form class="filtros" [formGroup]="filtros" (ngSubmit)="buscar()">
+      <mat-form-field appearance="outline">
+        <mat-label>Filtrar por nombre</mat-label>
+        <input matInput formControlName="nombre" autocomplete="off">
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Filtrar por apellido</mat-label>
+        <input matInput formControlName="apellido" autocomplete="off">
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Tipo de usuario</mat-label>
+        <mat-select formControlName="rol">
+          <mat-option value="">Todos</mat-option>
+          <mat-option value="paciente">Paciente</mat-option>
+          <mat-option value="operador">Operador</mat-option>
+          <mat-option value="medico">Médico</mat-option>
+          <mat-option value="administrador">Administrador</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Sede</mat-label>
+        <mat-select formControlName="id_sede">
+          <mat-option value="">Todas</mat-option>
+          @for (sede of sedes(); track sede.id) {
+            <mat-option [value]="sede.id">{{ sede.nombre }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <div class="acciones-filtros">
+        <button mat-flat-button color="primary" type="submit">Buscar</button>
+        <button mat-stroked-button type="button" (click)="limpiarFiltros()">Limpiar</button>
+      </div>
+    </form>
+
+    <div class="tabla-contenedor">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Nombre y apellido</th>
+            <th scope="col">DNI</th>
+            <th scope="col">Correo</th>
+            <th scope="col">Tipo</th>
+            <th scope="col">Sede</th>
+            <th scope="col">Especialidades</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (usuario of usuarios(); track usuario.id) {
+            <tr>
+              <td data-label="Nombre">{{ usuario.nombre }} {{ usuario.apellido }}</td>
+              <td data-label="DNI">{{ usuario.dni }}</td>
+              <td data-label="Correo">{{ usuario.email }}</td>
+              <td data-label="Tipo">{{ usuario.rol }}</td>
+              <td data-label="Sede">{{ usuario.sede || '—' }}</td>
+              <td data-label="Especialidades">
+                {{ usuario.especialidades?.length ? usuario.especialidades?.join(', ') : '—' }}
+              </td>
+              <td data-label="Acciones" class="acciones-fila">
+                <button
+                  mat-stroked-button
+                  type="button"
+                  (click)="editar(usuario)"
+                  [disabled]="guardando()"
+                  [attr.aria-label]="'Modificar usuario ' + usuario.nombre + ' ' + usuario.apellido"
+                >
+                  Modificar
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="estado-vacio">
+                @if (cargando()) {
+                  Cargando usuarios...
+                } @else {
+                  No se encontraron usuarios para esos filtros.
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <nav class="paginacion" aria-label="Paginación del listado de usuarios">
+      <button mat-stroked-button type="button" (click)="cambiarPagina(-1)" [disabled]="pagina() <= 1 || cargando()">
+        Anterior
+      </button>
+      <span>Página {{ pagina() }} de {{ totalPaginas() || 1 }}</span>
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="cambiarPagina(1)"
+        [disabled]="pagina() >= totalPaginas() || cargando()"
+      >
+        Siguiente
+      </button>
+    </nav>
+  </section>
+</section>

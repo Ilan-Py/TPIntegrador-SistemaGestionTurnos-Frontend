@@ -16,6 +16,13 @@
       <a mat-button [routerLink]="item.ruta">{{ item.label }}</a>
     }
 
+    @if (rol() === 'administrador') {
+      <a mat-stroked-button routerLink="/admin/auditoria" class="btn-auditoria">
+        <mat-icon>fact_check</mat-icon>
+        Auditoría
+      </a>
+    }
+
     <!-- Campana de notificaciones (semana 3) -->
     <button mat-icon-button matTooltip="Notificaciones (próximamente)" disabled>
       <mat-icon>notifications</mat-icon>

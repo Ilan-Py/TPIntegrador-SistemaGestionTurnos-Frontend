@@ -1,0 +1,137 @@
+<section class="auditoria" aria-labelledby="titulo-auditoria">
+  <header class="encabezado">
+    <div>
+      <h2 id="titulo-auditoria">Registro de auditoría</h2>
+      <p>Consulta de solo lectura de las acciones sensibles realizadas en el sistema.</p>
+    </div>
+    <a mat-stroked-button routerLink="/admin">Volver al panel</a>
+  </header>
+
+  <section class="listado" aria-labelledby="titulo-listado">
+    <div class="listado-encabezado">
+      <div>
+        <h3 id="titulo-listado">Acciones registradas</h3>
+        <p>{{ total() }} registro(s)</p>
+      </div>
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="actualizar()"
+        [disabled]="cargando()"
+        aria-label="Actualizar registros de auditoría"
+      >
+        <mat-icon>refresh</mat-icon>
+        Actualizar
+      </button>
+    </div>
+
+    <form class="filtros" [formGroup]="filtros" (ngSubmit)="buscar()">
+      <mat-form-field appearance="outline">
+        <mat-label>Usuario</mat-label>
+        <input
+          matInput
+          formControlName="usuario"
+          placeholder="Nombre, apellido, DNI o correo"
+          autocomplete="off"
+        >
+        <mat-hint>También podés buscar por ID de usuario.</mat-hint>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Entidad</mat-label>
+        <input matInput formControlName="entidad" placeholder="Ej.: usuario, sede" autocomplete="off">
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Desde</mat-label>
+        <input matInput formControlName="fechaDesde" type="date">
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Hasta</mat-label>
+        <input matInput formControlName="fechaHasta" type="date">
+      </mat-form-field>
+      <div class="acciones-filtros">
+        <button mat-flat-button color="primary" type="submit">
+          <mat-icon>search</mat-icon>
+          Buscar
+        </button>
+        <button mat-stroked-button type="button" (click)="limpiarFiltros()">Limpiar</button>
+      </div>
+    </form>
+
+    @if (errorMensaje()) {
+      <div class="mensaje-error" role="alert">
+        <mat-icon aria-hidden="true">error</mat-icon>
+        <span>{{ errorMensaje() }}</span>
+      </div>
+    }
+
+    <div class="tabla-contenedor">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Usuario / afectado</th>
+            <th scope="col">Acción</th>
+            <th scope="col">Entidad</th>
+            <th scope="col">Detalle</th>
+            <th scope="col">Fecha</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (registro of registros(); track registro.id) {
+            <tr>
+              <td data-label="Usuario">
+                {{ registro.usuario || 'Usuario #' + registro.id_usuario }}
+                <span class="id-usuario">Realizó la acción · ID {{ registro.id_usuario }}</span>
+                @if (registro.usuario_afectado) {
+                  <span class="usuario-afectado">
+                    Afectado: {{ registro.usuario_afectado }} (ID {{ registro.id_entidad }})
+                  </span>
+                }
+              </td>
+              <td data-label="Acción">
+                <span class="accion" [class]="
+                  registro.accion === 'ALTA' ? 'accion accion-alta' :
+                  registro.accion === 'BAJA' ? 'accion accion-baja' : 'accion accion-modificacion'
+                ">
+                  {{ registro.accion }}
+                </span>
+              </td>
+              <td data-label="Entidad">{{ registro.entidad }}</td>
+              <td data-label="Detalle">{{ registro.detalle || '—' }}</td>
+              <td data-label="Fecha">{{ registro.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="estado-vacio">
+                @if (cargando()) {
+                  Cargando registros...
+                } @else {
+                  No hay registros que coincidan con los filtros.
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <nav class="paginacion" aria-label="Paginación del registro de auditoría">
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="cambiarPagina(-1)"
+        [disabled]="pagina() <= 1 || cargando()"
+      >
+        Anterior
+      </button>
+      <span>Página {{ pagina() }} de {{ totalPaginas() || 1 }}</span>
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="cambiarPagina(1)"
+        [disabled]="pagina() >= totalPaginas() || cargando()"
+      >
+        Siguiente
+      </button>
+    </nav>
+  </section>
+</section>

@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { rolGuard } from './core/guards/rol.guard';
-import { M } from '@angular/cdk/keycodes';
 
 export const routes: Routes = [
   {
@@ -49,6 +48,10 @@ export const routes: Routes = [
       {
         path: 'usuarios',
         loadComponent: () => import('./pages/admin/admin-usuarios/admin-usuarios.component').then(m => m.AdminUsuariosComponent)
+      },
+      {
+        path: 'auditoria',
+        loadComponent: () => import('./pages/admin/admin-auditoria/admin-auditoria.component').then(m => m.AdminAuditoriaComponent)
       }
     ]
   },

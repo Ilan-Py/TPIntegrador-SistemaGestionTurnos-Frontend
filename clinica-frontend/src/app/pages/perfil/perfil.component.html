@@ -49,7 +49,7 @@
               <mat-icon>cake</mat-icon>
               <div>
                 <span class="label">Fecha de nacimiento</span>
-                <span class="valor">{{ u.fecha_nacimiento | slice:0:10 }}</span>
+                <span class="valor">{{ u.fecha_nacimiento | date:'dd/MM/yyyy' }}</span>
               </div>
             </div>
           }

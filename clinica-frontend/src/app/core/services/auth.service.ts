@@ -25,7 +25,24 @@ export class AuthService {
   readonly estaLogueado = computed(() => !!this._token());
   readonly rol = computed(() => this._usuario()?.rol ?? null);
 
-  constructor(private http: HttpClient, private router: Router) {}
+  // Queda en true si al abrir la aplicación se descartó una sesión vencida,
+  // para que el login muestre el aviso "Tu sesión venció".
+  private _sesionDescartada = false;
+
+  constructor(private http: HttpClient, private router: Router) {
+    // Si al abrir la aplicación el token guardado ya venció, se descarta la sesión.
+    if (this._token() && this.tokenVencido()) {
+      this.limpiarSesion();
+      this._sesionDescartada = true;
+    }
+  }
+
+  /** Indica (una sola vez) si al iniciar se descartó una sesión vencida. */
+  consumirSesionDescartada(): boolean {
+    const valor = this._sesionDescartada;
+    this._sesionDescartada = false;
+    return valor;
+  }
 
   login(datos: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/login`, datos).pipe(
@@ -51,11 +68,35 @@ export class AuthService {
   }
 
   logout(): void {
+    this.limpiarSesion();
+    this.router.navigate(['/']);
+  }
+
+  /** Cierra la sesión porque el token venció o el backend lo rechazó, y lleva al login. */
+  cerrarSesionVencida(): void {
+    this.limpiarSesion();
+    this.router.navigate(['/login'], { queryParams: { sesion: 'vencida' } });
+  }
+
+  /** Indica si el token guardado venció (o no se puede leer), según su campo "exp". */
+  tokenVencido(): boolean {
+    const token = this._token();
+    if (!token) return true;
+
+    try {
+      const payloadBase64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      const payload = JSON.parse(atob(payloadBase64));
+      return typeof payload.exp !== 'number' || payload.exp * 1000 <= Date.now();
+    } catch {
+      return true;
+    }
+  }
+
+  limpiarSesion(): void {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USUARIO_KEY);
     this._token.set(null);
     this._usuario.set(null);
-    this.router.navigate(['/']);
   }
 
   private guardarSesion(token: string, usuario: Usuario): void {

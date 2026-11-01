@@ -5,11 +5,12 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { AuthService } from '../../core/services/auth.service';
 import { Usuario } from '../../models/usuario.model';
-import { SlicePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
+import { mensajeError } from '../../core/utils/error.util';
 
 @Component({
   selector: 'app-perfil',
-  imports: [MatCardModule, MatIconModule, MatProgressSpinnerModule, MatDividerModule, SlicePipe],
+  imports: [MatCardModule, MatIconModule, MatProgressSpinnerModule, MatDividerModule, DatePipe],
   templateUrl: './perfil.component.html',
   styleUrl: './perfil.component.css'
 })
@@ -33,9 +34,9 @@ export class PerfilComponent implements OnInit {
         this.cargando.set(false);
         if (res.datos) this.usuario.set(res.datos);
       },
-      error: () => {
+      error: (err: unknown) => {
         this.cargando.set(false);
-        this.error.set('No se pudo cargar el perfil.');
+        this.error.set(mensajeError(err, 'No se pudo cargar el perfil.'));
       }
     });
   }

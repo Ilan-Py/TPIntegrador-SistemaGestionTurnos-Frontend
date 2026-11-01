@@ -19,6 +19,9 @@
             @if (campo('nombre').hasError('minlength') && campo('nombre').touched) {
               <mat-error>Mínimo 2 caracteres</mat-error>
             }
+            @if (campo('nombre').hasError('maxlength') && campo('nombre').touched) {
+              <mat-error>Máximo 30 caracteres</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field appearance="outline">
@@ -29,6 +32,9 @@
             }
             @if (campo('apellido').hasError('minlength') && campo('apellido').touched) {
               <mat-error>Mínimo 2 caracteres</mat-error>
+            }
+            @if (campo('apellido').hasError('maxlength') && campo('apellido').touched) {
+              <mat-error>Máximo 30 caracteres</mat-error>
             }
           </mat-form-field>
         </div>
@@ -42,7 +48,7 @@
               <mat-error>Requerido</mat-error>
             }
             @if (campo('dni').hasError('pattern') && campo('dni').touched) {
-              <mat-error>DNI inválido (solo números, 7-10 dígitos)</mat-error>
+              <mat-error>DNI inválido (solo números, 7 u 8 dígitos)</mat-error>
             }
           </mat-form-field>
 
@@ -50,6 +56,12 @@
             <mat-label>Teléfono (opcional)</mat-label>
             <input matInput formControlName="telefono" inputmode="tel">
             <mat-icon matSuffix>phone</mat-icon>
+            @if (campo('telefono').hasError('maxlength') && campo('telefono').touched) {
+              <mat-error>Máximo 10 caracteres</mat-error>
+            }
+            @if (campo('telefono').hasError('pattern') && campo('telefono').touched) {
+              <mat-error>Solo números y los símbolos + ( ) -</mat-error>
+            }
           </mat-form-field>
         </div>
 
@@ -62,6 +74,9 @@
           }
           @if (campo('email').hasError('email') && campo('email').touched) {
             <mat-error>Formato de email inválido</mat-error>
+          }
+          @if (campo('email').hasError('maxlength') && campo('email').touched) {
+            <mat-error>Máximo 30 caracteres</mat-error>
           }
         </mat-form-field>
 
@@ -84,10 +99,14 @@
           <mat-form-field appearance="outline">
             <mat-label>Fecha de nacimiento</mat-label>
             <input matInput [matDatepicker]="picker" formControlName="fecha_nacimiento"
-                   [max]="fechaMax">
+                   [max]="fechaMax" placeholder="dd/mm/aaaa">
             <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>
-            @if (campo('fecha_nacimiento').hasError('required') && campo('fecha_nacimiento').touched) {
+            @if (campo('fecha_nacimiento').hasError('matDatepickerParse')) {
+              <mat-error>Fecha inválida (usá dd/mm/aaaa)</mat-error>
+            } @else if (campo('fecha_nacimiento').hasError('matDatepickerMax')) {
+              <mat-error>La fecha no puede ser futura</mat-error>
+            } @else if (campo('fecha_nacimiento').hasError('required') && campo('fecha_nacimiento').touched) {
               <mat-error>Requerido</mat-error>
             }
           </mat-form-field>

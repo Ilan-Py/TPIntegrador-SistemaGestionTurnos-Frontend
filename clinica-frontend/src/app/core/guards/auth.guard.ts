@@ -6,9 +6,16 @@ export const authGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
-  if (auth.estaLogueado()) {
-    return true;
+  if (!auth.estaLogueado()) {
+    const queryParams = auth.consumirSesionDescartada() ? { sesion: 'vencida' } : {};
+    return router.createUrlTree(['/login'], { queryParams });
   }
 
-  return router.createUrlTree(['/login']);
+  // El token sigue guardado pero ya venció: se cierra la sesión antes de entrar.
+  if (auth.tokenVencido()) {
+    auth.limpiarSesion();
+    return router.createUrlTree(['/login'], { queryParams: { sesion: 'vencida' } });
+  }
+
+  return true;
 };

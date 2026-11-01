@@ -8,12 +8,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthService } from '../../core/services/auth.service';
 import { CoberturaService } from '../../core/services/cobertura.service';
 import { Cobertura } from '../../models/cobertura.model';
+import { mensajeError } from '../../core/utils/error.util';
+import { aFechaISO } from '../../core/utils/fecha.util';
 
 @Component({
   selector: 'app-registro',
@@ -27,7 +28,6 @@ import { Cobertura } from '../../models/cobertura.model';
     MatCardModule,
     MatSelectModule,
     MatDatepickerModule,
-    MatNativeDateModule,
     MatProgressSpinnerModule,
     MatSnackBarModule
   ],
@@ -48,14 +48,15 @@ export class RegistroComponent implements OnInit {
   fechaMax = new Date();
 
   form = this.fb.group({
-    nombre: ['', [Validators.required, Validators.minLength(2)]],
-    apellido: ['', [Validators.required, Validators.minLength(2)]],
-    dni: ['', [Validators.required, Validators.pattern(/^\d{7,10}$/)]],
-    email: ['', [Validators.required, Validators.email]],
+    // Los máximos coinciden con el tamaño de las columnas de la base de datos.
+    nombre: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(30)]],
+    apellido: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(30)]],
+    dni: ['', [Validators.required, Validators.pattern(/^\d{7,8}$/)]],
+    email: ['', [Validators.required, Validators.email, Validators.maxLength(30)]],
     password: ['', [Validators.required, Validators.minLength(6)]],
     fecha_nacimiento: [null as Date | null, Validators.required],
     id_cobertura: [null as number | null, Validators.required],
-    telefono: ['']
+    telefono: ['', [Validators.maxLength(10), Validators.pattern(/^[0-9+()\s-]*$/)]]
   });
 
   ngOnInit(): void {
@@ -63,8 +64,8 @@ export class RegistroComponent implements OnInit {
       next: (res) => {
         if (res.datos) this.coberturas.set(res.datos);
       },
-      error: () => {
-        this.errorMensaje.set('No se pudieron cargar las coberturas. Intentá más tarde.');
+      error: (err: unknown) => {
+        this.errorMensaje.set(mensajeError(err, 'No se pudieron cargar las coberturas. Intentá más tarde.'));
       }
     });
   }
@@ -87,19 +88,17 @@ export class RegistroComponent implements OnInit {
     this.errorMensaje.set('');
 
     const v = this.form.value;
-    const fechaStr = v.fecha_nacimiento
-      ? new Date(v.fecha_nacimiento).toISOString().split('T')[0]
-      : '';
+    const fechaStr = v.fecha_nacimiento ? aFechaISO(new Date(v.fecha_nacimiento)) : '';
 
     this.auth.registro({
-      nombre: v.nombre!,
-      apellido: v.apellido!,
+      nombre: v.nombre!.trim(),
+      apellido: v.apellido!.trim(),
       dni: v.dni!,
-      email: v.email!,
+      email: v.email!.trim(),
       password: v.password!,
       fecha_nacimiento: fechaStr,
       id_cobertura: v.id_cobertura!,
-      telefono: v.telefono || undefined
+      telefono: v.telefono?.trim() || undefined
     }).subscribe({
       next: (res) => {
         this.cargando.set(false);
@@ -113,11 +112,9 @@ export class RegistroComponent implements OnInit {
           this.errorMensaje.set(res.estado ?? 'Error al registrarse.');
         }
       },
-      error: (err) => {
+      error: (err: unknown) => {
         this.cargando.set(false);
-        this.errorMensaje.set(
-          err.error?.estado ?? 'Error al registrarse. Verificá los datos.'
-        );
+        this.errorMensaje.set(mensajeError(err, 'Error al registrarse. Verificá los datos.'));
       }
     });
   }

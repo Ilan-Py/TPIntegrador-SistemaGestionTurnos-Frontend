@@ -13,12 +13,7 @@ import { Cobertura, RespuestaApi } from '../../models/cobertura.model';
  *
  * Observable representa una operación asíncrona: subscribe() inicia la
  * petición y permite definir qué hacer cuando llega la respuesta (next) o
- * cuando ocurre un error (error). Ejemplo de uso desde un componente:
- *
- * this.coberturaService.listar().subscribe({
- *   next: respuesta => console.log(respuesta.datos),
- *   error: error => console.error('No se pudieron cargar', error)
- * });
+ * cuando ocurre un error (error).
  */
 @Injectable({ providedIn: 'root' })
 export class CoberturaService {

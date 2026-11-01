@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,6 +9,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../core/services/auth.service';
 import { normalizarRol } from '../../core/utils/rol.util';
+import { mensajeError } from '../../core/utils/error.util';
 
 // Asocia cada rol devuelto por el backend con la sección a la que debe entrar.
 const rutaPorRol = {
@@ -37,6 +38,7 @@ export class LoginComponent {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   form = this.fb.group({
     dni: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
@@ -46,6 +48,8 @@ export class LoginComponent {
   cargando = signal(false);
   errorMensaje = signal('');
   mostrarPassword = signal(false);
+  // Se muestra cuando el usuario llega al login porque su sesión venció.
+  sesionVencida = signal(this.route.snapshot.queryParamMap.get('sesion') === 'vencida');
 
   togglePassword(): void {
     this.mostrarPassword.update(v => !v);
@@ -59,6 +63,7 @@ export class LoginComponent {
 
     this.cargando.set(true);
     this.errorMensaje.set('');
+    this.sesionVencida.set(false);
 
     const { dni, password } = this.form.value;
 
@@ -82,11 +87,9 @@ export class LoginComponent {
           this.errorMensaje.set(res.estado ?? 'Error al iniciar sesión.');
         }
       },
-      error: (err) => {
+      error: (err: unknown) => {
         this.cargando.set(false);
-        this.errorMensaje.set(
-          err.error?.estado ?? 'Credenciales inválidas. Verificá tu DNI y contraseña.'
-        );
+        this.errorMensaje.set(mensajeError(err, 'No se pudo iniciar sesión. Intentá nuevamente.'));
       }
     });
   }

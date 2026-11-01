@@ -1,0 +1,92 @@
+<div class="encabezado">
+  <div>
+    <h1 class="titulo-pagina">Mis turnos</h1>
+    <p class="subtitulo-pagina">Hacé click en un turno para ver el detalle.</p>
+  </div>
+  <a mat-flat-button color="primary" routerLink="/paciente/nuevo-turno">
+    <mat-icon>add</mat-icon> Nuevo turno
+  </a>
+</div>
+
+@if (errorMensaje()) {
+  <div class="error-banner"><mat-icon>error</mat-icon> {{ errorMensaje() }}</div>
+}
+
+@if (cargando()) {
+  <div class="cargando-centro"><mat-spinner diameter="40" /></div>
+} @else if (turnos().length === 0 && !errorMensaje()) {
+  <div class="estado-vacio">
+    <mat-icon class="icono-vacio">event_note</mat-icon>
+    <p>Todavía no tenés turnos.</p>
+    <a mat-stroked-button color="primary" routerLink="/paciente/nuevo-turno">Pedir un turno</a>
+  </div>
+} @else {
+  @if (proximos().length > 0) {
+    <h2 class="seccion">Próximos</h2>
+    <mat-accordion>
+      @for (t of proximos(); track t.id) {
+        <ng-container *ngTemplateOutlet="panel; context: { $implicit: t }" />
+      }
+    </mat-accordion>
+  }
+
+  @if (anteriores().length > 0) {
+    <h2 class="seccion">Anteriores</h2>
+    <mat-accordion>
+      @for (t of anteriores(); track t.id) {
+        <ng-container *ngTemplateOutlet="panel; context: { $implicit: t }" />
+      }
+    </mat-accordion>
+  }
+}
+
+<ng-template #panel let-t>
+  <mat-expansion-panel [class]="'turno estado-' + t.estado">
+    <mat-expansion-panel-header>
+      <mat-panel-title class="titulo-turno">
+        <span class="fecha">{{ t.fechaLocal | date: 'dd/MM/yyyy' }}</span>
+        <span class="hora">{{ t.hora }} hs</span>
+      </mat-panel-title>
+      <mat-panel-description class="descripcion-turno">
+        <span>{{ t.especialidad }} · {{ t.medico_apellido }}, {{ t.medico_nombre }}</span>
+        <span class="estado" [class]="'estado chip-' + t.estado">
+          <mat-icon>{{ iconoEstado[t.estado] }}</mat-icon>
+          {{ etiquetaEstado[t.estado] }}
+        </span>
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <dl class="detalle">
+      <dt>Fecha</dt><dd class="capitalizar">{{ t.fechaLocal | date: "EEEE d 'de' MMMM 'de' y" }}, {{ t.hora }} hs</dd>
+      <dt>Especialista</dt><dd>{{ t.medico_apellido }}, {{ t.medico_nombre }}</dd>
+      <dt>Especialidad</dt><dd>{{ t.especialidad }}</dd>
+      <dt>Sede</dt><dd>{{ t.sede }}</dd>
+      @if (t.nota) {
+        <dt>Motivo</dt><dd>{{ t.nota }}</dd>
+      }
+    </dl>
+
+    @if (t.estado === 'atendido') {
+      <div class="historial">
+        <h3><mat-icon>medical_information</mat-icon> Historial clínico</h3>
+        @if (t.historial; as h) {
+          <dl class="detalle">
+            <dt>Diagnóstico</dt><dd>{{ h.diagnostico }}</dd>
+            <dt>Tratamiento</dt><dd>{{ h.tratamiento || '—' }}</dd>
+            <dt>Observaciones</dt><dd>{{ h.observaciones || '—' }}</dd>
+          </dl>
+        } @else {
+          <p class="sin-historial">El médico todavía no cargó el historial clínico de este turno.</p>
+        }
+      </div>
+    }
+
+    @if (t.estado === 'confirmado') {
+      <mat-action-row>
+        <button mat-stroked-button color="warn" (click)="cancelar(t)" [disabled]="cancelandoId() === t.id">
+          <mat-icon>event_busy</mat-icon> Cancelar turno
+        </button>
+      </mat-action-row>
+    }
+  </mat-expansion-panel>
+</ng-template>

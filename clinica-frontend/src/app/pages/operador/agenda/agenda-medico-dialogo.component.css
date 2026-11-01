@@ -1,0 +1,47 @@
+.sede {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #555;
+  margin-top: 0;
+}
+
+.campo-completo {
+  width: 100%;
+}
+
+.fila {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.subtitulo {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #555;
+  margin: 8px 0;
+}
+
+.sin-rangos {
+  color: #666;
+  margin: 0 0 8px;
+}
+
+.rangos {
+  padding-top: 0;
+}
+
+.editando {
+  background: #e3f2fd;
+}
+
+.acciones-rango {
+  display: flex;
+}
+
+.error-campo {
+  color: #c62828;
+  font-size: 0.85rem;
+  margin: -8px 0 12px;
+}

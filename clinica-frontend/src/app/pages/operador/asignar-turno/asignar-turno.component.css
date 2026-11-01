@@ -1,0 +1,43 @@
+.buscador {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.campo-busqueda {
+  width: 360px;
+}
+
+.buscador button {
+  margin-top: 8px;
+}
+
+.tabla {
+  width: 100%;
+  max-width: 900px;
+}
+
+.paciente-elegido {
+  max-width: 640px;
+  margin-bottom: 16px;
+}
+
+.paciente-elegido mat-card-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.paciente-elegido mat-card-content > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.paciente-elegido button {
+  margin-left: auto;
+}
+
+.secundario {
+  color: #666;
+  font-size: 0.9rem;
+}

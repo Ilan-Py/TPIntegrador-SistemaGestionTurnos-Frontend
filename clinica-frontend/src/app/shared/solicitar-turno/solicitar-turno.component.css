@@ -1,0 +1,65 @@
+.stepper {
+  background: transparent;
+}
+
+.paso {
+  padding-top: 8px;
+}
+
+.campo {
+  width: 100%;
+  max-width: 480px;
+  display: block;
+}
+
+.campo-ancho {
+  max-width: 560px;
+}
+
+.acciones {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.ayuda {
+  color: #555;
+  margin: 0 0 12px;
+}
+
+.dato-fijo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.calendario {
+  max-width: 340px;
+}
+
+.horarios {
+  display: block;
+  max-width: 640px;
+}
+
+.resumen {
+  max-width: 560px;
+  margin-top: 8px;
+}
+
+.resumen dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 16px;
+  margin: 8px 0 0;
+}
+
+.resumen dt {
+  font-weight: 500;
+  color: #555;
+}
+
+.resumen dd {
+  margin: 0;
+}

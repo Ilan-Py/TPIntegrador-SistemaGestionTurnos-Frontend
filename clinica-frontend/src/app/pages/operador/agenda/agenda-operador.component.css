@@ -1,0 +1,21 @@
+.encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.filtros {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.tabla {
+  width: 100%;
+}
+
+.col-acciones {
+  width: 120px;
+  text-align: right;
+}

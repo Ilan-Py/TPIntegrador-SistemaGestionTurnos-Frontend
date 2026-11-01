@@ -68,13 +68,16 @@ export class HeaderComponent {
         ];
       case 'operador':
         return [
-          { label: 'Gestión de Turnos', ruta: '/operador' },
+          { label: 'Agenda y turnos', ruta: '/operador/agenda' },
+          { label: 'Alta de paciente', ruta: '/operador/alta-paciente' },
+          { label: 'Asignar turno', ruta: '/operador/asignar-turno' },
           { label: 'Mi Perfil', ruta: '/perfil' }
         ];
       case 'paciente':
         return [
-          { label: 'Mis Turnos', ruta: '/paciente' },
-          { label: 'Mi Perfil', ruta: '/perfil' }
+          { label: 'Nuevo turno', ruta: '/paciente/nuevo-turno' },
+          { label: 'Mis turnos', ruta: '/paciente/mis-turnos' },
+          { label: 'Mis datos', ruta: '/paciente/mis-datos' }
         ];
       default:
         return [];

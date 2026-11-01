@@ -55,3 +55,18 @@ export const FORMATOS_FECHA: MatDateFormats = {
     dateInput: { day: '2-digit', month: '2-digit', year: 'numeric' }
   }
 };
+
+/**
+ * Pasa una fecha que viene de la API a "YYYY-MM-DD" local.
+ * El backend devuelve las columnas DATE como "2026-11-03T03:00:00.000Z" (medianoche de Argentina en UTC)
+ * y algunas consultas como "2026-11-03". Sirve para comparar fechas sin problemas de zona horaria.
+ */
+export function fechaDeApi(valor: string): string {
+  return /^\d{4}-\d{2}-\d{2}$/.test(valor) ? valor : aFechaISO(new Date(valor));
+}
+
+/** Convierte "YYYY-MM-DD" en un Date local (sin pasar por UTC). */
+export function desdeFechaISO(valor: string): Date {
+  const [anio, mes, dia] = valor.split('-').map(Number);
+  return new Date(anio, mes - 1, dia);
+}

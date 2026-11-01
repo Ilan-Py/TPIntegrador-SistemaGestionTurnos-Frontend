@@ -1,0 +1,79 @@
+<h1 class="titulo-pagina">Asignar turno</h1>
+<p class="subtitulo-pagina">Buscá al paciente y asignale un turno en tu sede.</p>
+
+@if (!miSede()) {
+  <div class="error-banner"><mat-icon>error</mat-icon> Tu usuario no tiene una sede asignada.</div>
+} @else if (pacienteElegido(); as p) {
+  <mat-card appearance="outlined" class="paciente-elegido">
+    <mat-card-content>
+      <mat-icon>person</mat-icon>
+      <div>
+        <strong>{{ p.apellido }}, {{ p.nombre }}</strong>
+        <span class="secundario">DNI {{ p.dni }} · {{ p.cobertura ?? 'Sin cobertura' }}</span>
+      </div>
+      <button mat-stroked-button type="button" (click)="cambiarPaciente()">
+        <mat-icon>swap_horiz</mat-icon> Cambiar paciente
+      </button>
+    </mat-card-content>
+  </mat-card>
+
+  @if (turnoAsignado(); as t) {
+    <div class="exito-banner">
+      <mat-icon>check_circle</mat-icon>
+      Turno asignado a {{ t.paciente }}: {{ fechaTurno(t.fecha) | date: 'EEEE dd/MM/yyyy' }} a las {{ t.hora }} con {{ t.medico }} ({{ t.especialidad }}).
+    </div>
+  }
+
+  <app-solicitar-turno [paciente]="p" [sedeFija]="miSede()" (turnoConfirmado)="onConfirmado($event)" />
+} @else {
+  <form [formGroup]="busqueda" (ngSubmit)="buscar()" class="buscador">
+    <mat-form-field appearance="outline" class="campo-busqueda">
+      <mat-label>DNI o apellido del paciente</mat-label>
+      <input matInput formControlName="texto" autocomplete="off">
+      <mat-icon matSuffix>search</mat-icon>
+      @if (busqueda.controls.texto.hasError('required') && busqueda.controls.texto.touched) {
+        <mat-error>Ingresá un DNI o un apellido</mat-error>
+      }
+    </mat-form-field>
+    <button mat-flat-button color="primary" type="submit" [disabled]="buscando()">Buscar</button>
+  </form>
+
+  @if (errorMensaje()) {
+    <div class="error-banner"><mat-icon>error</mat-icon> {{ errorMensaje() }}</div>
+  }
+
+  @if (buscando()) {
+    <div class="cargando-centro"><mat-spinner diameter="36" /></div>
+  } @else if (resultados(); as lista) {
+    @if (lista.length === 0) {
+      <p class="estado-vacio">No se encontraron pacientes. Podés registrarlo desde "Alta de paciente".</p>
+    } @else {
+      <table mat-table [dataSource]="lista" class="mat-elevation-z1 tabla">
+        <ng-container matColumnDef="paciente">
+          <th mat-header-cell *matHeaderCellDef>Paciente</th>
+          <td mat-cell *matCellDef="let p">{{ p.apellido }}, {{ p.nombre }}</td>
+        </ng-container>
+        <ng-container matColumnDef="dni">
+          <th mat-header-cell *matHeaderCellDef>DNI</th>
+          <td mat-cell *matCellDef="let p">{{ p.dni }}</td>
+        </ng-container>
+        <ng-container matColumnDef="edad">
+          <th mat-header-cell *matHeaderCellDef>Edad</th>
+          <td mat-cell *matCellDef="let p">{{ p.edad }}</td>
+        </ng-container>
+        <ng-container matColumnDef="cobertura">
+          <th mat-header-cell *matHeaderCellDef>Cobertura</th>
+          <td mat-cell *matCellDef="let p">{{ p.cobertura ?? '—' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="accion">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let p">
+            <button mat-stroked-button color="primary" (click)="elegir(p)">Elegir</button>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+        <tr mat-row *matRowDef="let row; columns: columnas"></tr>
+      </table>
+    }
+  }
+}

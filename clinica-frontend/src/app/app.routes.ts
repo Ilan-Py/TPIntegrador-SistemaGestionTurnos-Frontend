@@ -73,38 +73,20 @@ export const routes: Routes = [
     ]
   },
 
-  // Sección Operador
+  // Sección Operador (rutas en pages/operador/operador.routes.ts)
   {
     path: 'operador',
     canActivate: [authGuard, rolGuard],
     data: { roles: ['operador'] },
-    children: [
-      {
-        path: '',
-        loadComponent: () => import('./pages/en-construccion/en-construccion.component').then(m => m.EnConstruccionComponent)
-      },
-      {
-        path: '**',
-        loadComponent: () => import('./pages/en-construccion/en-construccion.component').then(m => m.EnConstruccionComponent)
-      }
-    ]
+    loadChildren: () => import('./pages/operador/operador.routes').then(m => m.OPERADOR_ROUTES)
   },
 
-  // Sección Paciente
+  // Sección Paciente (rutas en pages/paciente/paciente.routes.ts)
   {
     path: 'paciente',
     canActivate: [authGuard, rolGuard],
     data: { roles: ['paciente'] },
-    children: [
-      {
-        path: '',
-        loadComponent: () => import('./pages/en-construccion/en-construccion.component').then(m => m.EnConstruccionComponent)
-      },
-      {
-        path: '**',
-        loadComponent: () => import('./pages/en-construccion/en-construccion.component').then(m => m.EnConstruccionComponent)
-      }
-    ]
+    loadChildren: () => import('./pages/paciente/paciente.routes').then(m => m.PACIENTE_ROUTES)
   },
 
   {

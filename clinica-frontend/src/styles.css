@@ -21,3 +21,43 @@ html, body {
 a {
   text-decoration: none;
 }
+
+/* Mensajes y estados compartidos por las pantallas */
+.error-banner,
+.info-banner,
+.exito-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+
+.error-banner { background-color: #fde8e8; color: #c62828; }
+.info-banner { background-color: #e3f2fd; color: #0d47a1; }
+.exito-banner { background-color: #e8f5e9; color: #1b5e20; }
+
+.estado-vacio {
+  text-align: center;
+  color: #666;
+  padding: 32px 16px;
+}
+
+.cargando-centro {
+  display: flex;
+  justify-content: center;
+  padding: 32px;
+}
+
+.titulo-pagina {
+  margin: 0 0 4px;
+  font-size: 1.6rem;
+  font-weight: 500;
+}
+
+.subtitulo-pagina {
+  margin: 0 0 20px;
+  color: #666;
+}

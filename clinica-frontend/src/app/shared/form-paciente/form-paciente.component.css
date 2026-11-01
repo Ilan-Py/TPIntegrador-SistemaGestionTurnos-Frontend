@@ -1,0 +1,17 @@
+.full-width {
+  width: 100%;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 4px;
+}
+
+.btn-submit {
+  margin-top: 8px;
+  height: 44px;
+}

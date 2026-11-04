@@ -1,55 +1,50 @@
 # TP Integrador — Frontend
 ## Sistema de Gestión de Turnos Médicos
 
-**IES Santa Fe · Programación 2 · 2026**  
+**IES Santa Fe · Programación 2 · 2026**
 **Autores:** Aaron Juárez & Ilan Pitashny
 
 ---
 
 ## Tecnologías
 
-| Herramienta      | Versión   |
-|------------------|-----------|
-| Node.js          | 22.x LTS  |
-| Angular CLI      | 21.x      |
-| Angular          | 21.x      |
-| Angular Material | 21.x      |
-| TypeScript       | ~5.9      |
+| Herramienta      | Versión              |
+|------------------|----------------------|
+| Node.js          | 22.x LTS (≥ 22.12)  |
+| Angular CLI      | 21.x                 |
+| Angular          | 21.x                 |
+| Angular Material | 21.x                 |
+| TypeScript       | ~5.9                 |
+| Librería de gráficos | _[completar al agregar reportes]_ |
 
 ---
 
 ## Requisitos previos
 
-- Node.js `^20.19.0`, `^22.12.0` o `^24.0.0`
+- Node.js `^20.19.0`, `^22.12.0` o `^24.0.0` (se recomienda 22 LTS)
 - Angular CLI 21: `npm install -g @angular/cli@21`
-- El backend corriendo en `http://localhost:4000` (ver instrucciones abajo)
+- El backend del repositorio **TPIntegrador-SistemaGestionTurnos-Backend** corriendo en `http://localhost:4000`
 
 ---
 
-## Instalación y ejecución
+## Levantar el sistema completo desde cero
+
+### 1 — Base de datos
+
+1. Abrir XAMPP y arrancar MySQL.
+2. En phpMyAdmin (o MySQL Workbench), crear la base de datos `clinica`.
+3. Importar los scripts en orden:
+   - `scripts/clinica_ampliada.sql`
+   - `scripts/usuarios_prueba.sql`
+
+### 2 — Backend
 
 ```bash
-# Desde la carpeta clinica-frontend/
-npm install
-ng serve
-```
-
-La aplicación levanta en `http://localhost:4200`.
-
----
-
-## Conexión con el backend
-
-Este frontend consume la API del repositorio **TPIntegrador-SistemaGestionTurnos-Backend**.
-
-### 1. Configurar el backend
-
-```bash
-# Desde la carpeta backend/
+# Desde la raíz del repositorio TPIntegrador-SistemaGestionTurnos-Backend
 cp .env.example .env
 ```
 
-Editá el `.env` con tus credenciales de MySQL:
+Editar `.env` con las credenciales locales de MySQL:
 
 ```env
 HOST=localhost
@@ -61,32 +56,36 @@ JWT_EXPIRES_IN=8h
 PORT=4000
 ```
 
-### 2. Crear la base de datos
-
-Ejecutá los scripts SQL en orden desde MySQL Workbench (o la terminal):
-
-```
-backend/scripts/clinica_ampliada.sql
-backend/scripts/usuarios_prueba.sql
-```
-
-### 3. Levantar el backend
-
 ```bash
 npm install
 npm run dev
-# → Servidor corriendo en puerto 4000
+# → Servidor en http://localhost:4000
 ```
 
-### 4. Levantar el frontend
+### 3 — Frontend
 
 ```bash
-# En otra terminal, desde clinica-frontend/
+# Desde la raíz de este repositorio
+npm install
 ng serve
-# → http://localhost:4200
+# → Aplicación en http://localhost:4200
 ```
 
-La URL base de la API está definida en `src/environments/environment.ts` y puede cambiarse ahí si el backend corre en otro puerto.
+La URL base de la API está definida en `src/environments/environment.ts`.
+Si el backend corre en otro puerto, cambiarla ahí.
+
+---
+
+## Usuarios de prueba
+
+Importar `scripts/usuarios_prueba.sql` en phpMyAdmin después de la base principal.
+
+| Rol            | DNI      | Contraseña   |
+|----------------|----------|--------------|
+| administrador  | 00000001 | password123  |
+| medico         | 00000002 | password123  |
+| operador       | 00000003 | password123  |
+| paciente       | 00000004 | password123  |
 
 ---
 
@@ -96,37 +95,45 @@ La URL base de la API está definida en `src/environments/environment.ts` y pued
 src/
 ├── app/
 │   ├── core/
-│   │   ├── services/         ← auth.service, cobertura.service
-│   │   ├── guards/           ← auth.guard, rol.guard
-│   │   └── interceptors/     ← token.interceptor (agrega Bearer automáticamente)
-│   ├── models/               ← interfaces TypeScript (Usuario, Cobertura, etc.)
+│   │   ├── services/         ← auth, agenda, turno, medico, paciente, sede,
+│   │   │                        especialidad, cobertura, disponibilidad,
+│   │   │                        usuario, auditoria (un archivo por servicio)
+│   │   ├── guards/           ← authGuard (sesión) y rolGuard (rol)
+│   │   ├── interceptors/     ← tokenInterceptor (agrega Bearer automáticamente)
+│   │   └── utils/            ← error.util, fecha.util, rol.util
+│   ├── models/               ← interfaces TypeScript por entidad
 │   ├── shared/
-│   │   ├── header/           ← header con menú por rol
-│   │   └── footer/           ← datos de contacto
+│   │   ├── header/           ← header con menú por rol y campana de notificaciones
+│   │   ├── footer/           ← datos de contacto de la clínica
+│   │   ├── confirmar-dialogo/← diálogo de confirmación genérico
+│   │   ├── form-paciente/    ← formulario reutilizable de paciente
+│   │   └── solicitar-turno/  ← flujo de turno reutilizable (operador + paciente)
 │   └── pages/
 │       ├── home/             ← pantalla principal (con y sin sesión)
 │       ├── login/            ← formulario de login
 │       ├── registro/         ← registro de paciente
 │       ├── perfil/           ← datos del usuario logueado
-│       ├── admin/            ← sección administrador (semana 2+)
-│       ├── medico/           ← sección médico (semana 2+)
-│       ├── operador/         ← sección operador (semana 2+)
-│       ├── paciente/         ← sección paciente (semana 2+)
+│       ├── admin/            ← sedes, especialidades, coberturas, usuarios,
+│       │                        auditoría y reportes
+│       ├── medico/           ← agenda, turnos del día e historial clínico
+│       ├── operador/         ← agenda, alta de paciente, asignar turno
+│       ├── paciente/         ← nuevo turno, mis turnos, mis datos
 │       ├── acceso-denegado/  ← 403
-│       ├── en-construccion/  ← placeholder semanas futuras
 │       └── not-found/        ← 404
 └── environments/
-    └── environment.ts        ← URL base de la API
+    └── environment.ts        ← URL base de la API (único lugar)
 ```
 
 ---
 
-## Funcionalidades implementadas (Semana 1)
+## Funcionalidades implementadas
+
+### Semana 1 — Setup, Angular Material y autenticación
 
 - ✅ Proyecto Angular 21 + Angular Material 21 (tema Azure/Blue)
 - ✅ Estructura de carpetas separando servicios, guards, interceptores, modelos y páginas
-- ✅ URL base de la API definida en un único lugar (`environment.ts`)
-- ✅ Header con menú según rol, campana de notificaciones (decorativa), botón cerrar sesión
+- ✅ URL base de la API en un único lugar (`environment.ts`)
+- ✅ Header con menú según rol, campana de notificaciones, botón cerrar sesión
 - ✅ Footer con datos de contacto de la clínica
 - ✅ Pantalla principal: sin sesión invita a registrarse/loguear; con sesión da la bienvenida
 - ✅ Registro de paciente con coberturas cargadas desde el backend
@@ -141,4 +148,29 @@ src/
 - ✅ Rutas separadas por rol: `/admin`, `/medico`, `/operador`, `/paciente`
 - ✅ Redirección a `/login` sin sesión, a `/acceso-denegado` con rol incorrecto
 - ✅ Página 404 para rutas inexistentes
-- ✅ Secciones de semanas futuras con pantalla "En construcción"
+
+### Semanas 2–4 — Funcionalidades completas
+
+#### Administrador
+- ✅ Sedes: listado con filtro, alta, edición y baja con confirmación
+- ✅ Especialidades: ídem
+- ✅ Coberturas: ídem
+- ✅ Gestión de usuarios: listado paginado con filtros, alta de operador/médico/administrador, edición
+- ✅ Auditoría: tabla paginada de solo lectura con filtros
+
+#### Operador
+- ✅ Agenda: vista por fecha y sede, nueva agenda para cualquier médico en su sede
+- ✅ Edición de agenda de médicos en su sede (agregar, modificar, eliminar rangos)
+- ✅ Turnos confirmados por médico y fecha, con opción de cancelar
+- ✅ Alta de paciente (reutiliza formulario compartido)
+- ✅ Asignar turno a paciente (mismo flujo que "Nuevo turno", sede fija)
+
+#### Paciente
+- ✅ Nuevo turno paso a paso: especialidad → sede → médico → fecha → horario → nota y confirmación
+- ✅ Mis turnos: listado con detalle desplegable, cancelación y visualización de historial
+- ✅ Mis datos: edición de email, contraseña, teléfono y cobertura
+
+#### Todos los roles — Notificaciones
+- ✅ Campana en header con contador de no leídas
+- ✅ Dropdown con listado; marcar como leída actualiza el contador al instante
+- ✅ Contador se actualiza al confirmar, cancelar o atender un turno (sin recargar)

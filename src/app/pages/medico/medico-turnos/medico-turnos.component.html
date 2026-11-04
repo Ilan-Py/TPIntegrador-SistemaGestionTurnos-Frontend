@@ -1,0 +1,142 @@
+<section class="turnos" aria-labelledby="titulo-turnos">
+  <header class="encabezado">
+    <div>
+      <h2 id="titulo-turnos">Turnos programados</h2>
+      <p>Consultá y gestioná tus turnos en las sedes donde atendés.</p>
+    </div>
+    <a mat-stroked-button routerLink="/medico">Volver al panel</a>
+  </header>
+
+  <section class="filtros" aria-label="Filtros de turnos">
+    <mat-form-field appearance="outline">
+      <mat-label>Fecha</mat-label>
+      <input matInput type="date" [value]="fechaSeleccionada()" (change)="cambiarFecha($event)">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Sede</mat-label>
+      <mat-select
+        [value]="sedeSeleccionada()"
+        (selectionChange)="cambiarSede($event.value)"
+        [disabled]="cargandoSedes()"
+      >
+        <mat-option [value]="null">Todas las sedes</mat-option>
+        @for (sede of sedes(); track sede.id) {
+          <mat-option [value]="sede.id">{{ sede.nombre }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </section>
+
+  @if (errorMensaje()) {
+    <div class="mensaje error" role="alert">
+      <mat-icon>error</mat-icon>
+      {{ errorMensaje() }}
+    </div>
+  }
+
+  @if (cargando()) {
+    <p class="estado" role="status">Cargando turnos...</p>
+  } @else if (turnosOrdenados().length === 0) {
+    <p class="estado">No hay turnos para la fecha seleccionada.</p>
+  } @else {
+    <div class="tabla-contenedor">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Hora</th>
+            <th scope="col">Paciente</th>
+            <th scope="col">Edad</th>
+            <th scope="col">Sede</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (turno of turnosOrdenados(); track turno.id) {
+            <tr>
+              <td>
+                <button
+                  class="boton-hora"
+                  type="button"
+                  [attr.aria-expanded]="detalleAbiertoId() === turno.id"
+                  [attr.aria-controls]="'detalle-turno-' + turno.id"
+                  (click)="alternarDetalle(turno.id)"
+                >
+                  {{ turno.hora.slice(0, 5) }}
+                  <mat-icon>{{ detalleAbiertoId() === turno.id ? 'expand_less' : 'expand_more' }}</mat-icon>
+                </button>
+              </td>
+              <td>{{ turno.paciente_nombre }} {{ turno.paciente_apellido }}</td>
+              <td>{{ edad(turno.paciente_fecha_nacimiento) ?? '—' }}</td>
+              <td>{{ turno.sede }}</td>
+              <td>{{ turno.estado }}</td>
+              <td class="acciones">
+                @if (turno.estado === 'confirmado' && formularioTurnoId() !== turno.id) {
+                  <button mat-flat-button color="primary" type="button" (click)="abrirFormularioAtencion(turno)">
+                    Marcar como atendido
+                  </button>
+                  <button mat-stroked-button color="warn" type="button" (click)="cancelar(turno)">
+                    Cancelar
+                  </button>
+                }
+              </td>
+            </tr>
+            @if (detalleAbiertoId() === turno.id) {
+              <tr [id]="'detalle-turno-' + turno.id">
+                <td colspan="6">
+                  <div class="detalle">
+                    <strong>Notas del paciente</strong>
+                    <p>{{ turno.nota || 'El paciente no dejó notas para este turno.' }}</p>
+                    <p><strong>DNI:</strong> {{ turno.paciente_dni }}</p>
+                  </div>
+                </td>
+              </tr>
+            }
+            @if (formularioTurnoId() === turno.id) {
+              <tr>
+                <td colspan="6">
+                  <form class="formulario-atencion" [formGroup]="historialForm" (ngSubmit)="guardarAtencion(turno)">
+                    <h3>Historial clínico</h3>
+                    @if (turnoAtendidoId() === turno.id) {
+                      <p class="aviso-atendido">Turno marcado como atendido. Completá o reintentá guardar el historial.</p>
+                    }
+                    <div class="campos-historial">
+                      <mat-form-field appearance="outline">
+                        <mat-label>Diagnóstico</mat-label>
+                        <textarea matInput formControlName="diagnostico" maxlength="255" rows="2"></textarea>
+                        @if (historialForm.controls.diagnostico.hasError('required') && historialForm.controls.diagnostico.touched) {
+                          <mat-error>El diagnóstico es obligatorio.</mat-error>
+                        }
+                      </mat-form-field>
+                      <mat-form-field appearance="outline">
+                        <mat-label>Tratamiento</mat-label>
+                        <textarea matInput formControlName="tratamiento" maxlength="255" rows="2"></textarea>
+                      </mat-form-field>
+                      <mat-form-field appearance="outline">
+                        <mat-label>Observaciones</mat-label>
+                        <textarea matInput formControlName="observaciones" maxlength="255" rows="2"></textarea>
+                      </mat-form-field>
+                    </div>
+                    @if (mensajeFormulario()) {
+                      <div class="mensaje error" role="alert">{{ mensajeFormulario() }}</div>
+                    }
+                    <div class="acciones-formulario">
+                      <button mat-flat-button color="primary" type="submit" [disabled]="enviando()">
+                        {{ enviando() ? 'Guardando...' : turnoAtendidoId() === turno.id ? 'Reintentar historial' : 'Confirmar atención' }}
+                      </button>
+                      @if (turnoAtendidoId() !== turno.id) {
+                        <button mat-button type="button" (click)="cerrarFormularioAtencion()" [disabled]="enviando()">
+                          Volver
+                        </button>
+                      }
+                    </div>
+                  </form>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

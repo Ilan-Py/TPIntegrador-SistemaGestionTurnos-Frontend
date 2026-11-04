@@ -1,0 +1,91 @@
+:host {
+  display: block;
+}
+
+.menu-medico {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+.bienvenida {
+  margin-bottom: 36px;
+  text-align: center;
+}
+
+.bienvenida h1 {
+  margin: 0 0 12px;
+  color: #1565c0;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.bienvenida p {
+  margin: 0;
+  color: #555;
+  font-size: 1.1rem;
+}
+
+.opciones-medico {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.boton-medico {
+  display: flex;
+  min-width: 220px;
+  min-height: 112px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px 32px;
+  border: 1px solid #bbdefb;
+  border-radius: 16px;
+  background: #eaf4ff;
+  box-shadow: 0 6px 16px rgb(21 101 192 / 14%);
+  color: #1565c0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  transition:
+    transform 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.boton-medico:hover {
+  transform: scale(1.05);
+  background: #f5faff;
+  box-shadow: 0 10px 22px rgb(21 101 192 / 22%);
+}
+
+.boton-medico:focus-visible {
+  outline: 3px solid #1565c0;
+  outline-offset: 4px;
+}
+
+.icono {
+  font-family: 'Material Icons', sans-serif;
+  font-size: 28px;
+  font-weight: normal;
+  line-height: 1;
+}
+
+@media (max-width: 600px) {
+  .menu-medico {
+    padding: 36px 16px;
+  }
+
+  .boton-medico {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boton-medico {
+    transition: none;
+  }
+}

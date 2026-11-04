@@ -59,12 +59,21 @@ export class HeaderComponent {
       case 'administrador':
         return [
           { label: 'Panel Admin', ruta: '/admin' },
+          { label: 'Sedes', ruta: '/admin/sedes' },
+          { label: 'Especialidades', ruta: '/admin/especialidades' },
+          { label: 'Coberturas', ruta: '/admin/coberturas' },
+          { label: 'Usuarios', ruta: '/admin/usuarios' },
+          { label: 'Auditoría', ruta: '/admin/auditoria' },
+          { label: 'Reportes', ruta: '/admin/reportes' },
           { label: 'Mi Perfil', ruta: '/perfil' }
         ];
       case 'medico':
         return [
-          { label: 'Mis Turnos', ruta: '/medico' },
-          { label: 'Mi Perfil', ruta: '/perfil' }
+          { label: 'Panel médico', ruta: '/medico' },
+          { label: 'Mi agenda', ruta: '/medico/agenda' },
+          { label: 'Mis turnos', ruta: '/medico/turnos' },
+          { label: 'Historial clínico', ruta: '/medico/historial' },
+          { label: 'Mi perfil', ruta: '/perfil' }
         ];
       case 'operador':
         return [

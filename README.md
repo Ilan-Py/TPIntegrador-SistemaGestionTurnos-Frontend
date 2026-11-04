@@ -15,7 +15,7 @@
 | Angular          | 21.x                 |
 | Angular Material | 21.x                 |
 | TypeScript       | ~5.9                 |
-| Librería de gráficos | _[completar al agregar reportes]_ |
+| Chart.js             | ^4.6.1                           |
 
 ---
 

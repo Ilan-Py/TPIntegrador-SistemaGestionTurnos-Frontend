@@ -3,12 +3,20 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../models/usuario.model';
-import { NuevoTurno, TurnoPaciente, TurnoSede } from '../../models/turno.model';
+import {
+  DatosHistorialClinico,
+  NuevoTurno,
+  RespuestaTurnoApi,
+  TurnoMedico,
+  TurnoPaciente,
+  TurnoSede
+} from '../../models/turno.model';
 
 @Injectable({ providedIn: 'root' })
 export class TurnoService {
   private http = inject(HttpClient);
   private readonly url = `${environment.apiUrl}/turnos`;
+  private readonly historialUrl = `${environment.apiUrl}/historial`;
 
   crear(datos: NuevoTurno): Observable<ApiResponse<{ id: number }>> {
     return this.http.post<ApiResponse<{ id: number }>>(`${this.url}/altaTurno`, datos);
@@ -26,5 +34,29 @@ export class TurnoService {
   deSede(fecha: string): Observable<ApiResponse<TurnoSede[]>> {
     const params = new HttpParams().set('fecha', fecha);
     return this.http.get<ApiResponse<TurnoSede[]>>(`${this.url}/sede`, { params });
+  }
+
+  /** Turnos del médico logueado para una fecha. Filtra por sede si se indica. */
+  listarMedico(fecha: string, idSede: number | null): Observable<RespuestaTurnoApi<TurnoMedico[]>> {
+    let params = new HttpParams().set('fecha', fecha);
+    if (idSede !== null) params = params.set('id_sede', idSede);
+    return this.http.get<RespuestaTurnoApi<TurnoMedico[]>>(`${this.url}/medico`, { params });
+  }
+
+  marcarAtendido(id: number): Observable<RespuestaTurnoApi<{ turno_id: number; estado: string }>> {
+    return this.http.patch<RespuestaTurnoApi<{ turno_id: number; estado: string }>>(
+      `${this.url}/${id}/atender`,
+      {}
+    );
+  }
+
+  registrarHistorial(
+    idTurno: number,
+    datos: DatosHistorialClinico
+  ): Observable<RespuestaTurnoApi<DatosHistorialClinico>> {
+    return this.http.post<RespuestaTurnoApi<DatosHistorialClinico>>(
+      `${this.historialUrl}/${idTurno}`,
+      datos
+    );
   }
 }

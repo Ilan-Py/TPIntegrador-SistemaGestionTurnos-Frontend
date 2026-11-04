@@ -1,0 +1,21 @@
+<div class="menu-medico">
+  <section class="bienvenida" aria-labelledby="titulo-medico">
+    <h1 id="titulo-medico">Bienvenido/a, {{ nombreMedico() }}</h1>
+    <p>Elegí una opción para gestionar tu actividad médica.</p>
+  </section>
+
+  <nav class="opciones-medico" aria-label="Opciones del panel médico">
+    <a class="boton-medico" routerLink="turnos">
+      <span class="icono" aria-hidden="true">event_available</span>
+      Turnos programados
+    </a>
+    <a class="boton-medico" routerLink="agenda">
+      <span class="icono" aria-hidden="true">calendar_month</span>
+      Gestión de agenda
+    </a>
+    <a class="boton-medico" routerLink="historial">
+      <span class="icono" aria-hidden="true">medical_information</span>
+      Historial clínico
+    </a>
+  </nav>
+</div>

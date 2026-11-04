@@ -47,7 +47,16 @@ export class AuthService {
   }
 
   perfil(): Observable<ApiResponse<Usuario>> {
-    return this.http.get<ApiResponse<Usuario>>(`${environment.apiUrl}/auth/perfil`);
+    return this.http.get<ApiResponse<Usuario>>(`${environment.apiUrl}/auth/perfil`).pipe(
+      tap(res => {
+        const usuario = res.datos;
+        const token = this._token();
+        const rol = usuario ? normalizarRol(usuario.rol) : null;
+        if (usuario && token && rol) {
+          this.guardarSesion(token, { ...usuario, rol });
+        }
+      })
+    );
   }
 
   logout(): void {

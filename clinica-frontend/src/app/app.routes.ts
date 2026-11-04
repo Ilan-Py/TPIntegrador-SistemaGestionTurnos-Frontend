@@ -52,6 +52,10 @@ export const routes: Routes = [
       {
         path: 'auditoria',
         loadComponent: () => import('./pages/admin/admin-auditoria/admin-auditoria.component').then(m => m.AdminAuditoriaComponent)
+      },
+      {
+        path: 'reportes',
+        loadComponent: () => import('./pages/admin/admin-reportes/admin-reportes.component').then(m => m.AdminReportesComponent)
       }
     ]
   },
@@ -64,11 +68,24 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        loadComponent: () => import('./pages/en-construccion/en-construccion.component').then(m => m.EnConstruccionComponent)
+        pathMatch: 'full',
+        loadComponent: () => import('./pages/medico/medico-home/medico-home.component')
+          .then(m => m.MedicoHomeComponent)
       },
       {
-        path: '**',
-        loadComponent: () => import('./pages/en-construccion/en-construccion.component').then(m => m.EnConstruccionComponent)
+        path: 'agenda',
+        loadComponent: () => import('./pages/medico/medico-agenda/medico-agenda.component')
+          .then(m => m.MedicoAgendaComponent)
+      },
+      {
+        path: 'turnos',
+        loadComponent: () => import('./pages/medico/medico-turnos/medico-turnos.component')
+          .then(m => m.MedicoTurnosComponent)
+      },
+      {
+        path: 'historial',
+        loadComponent: () => import('./pages/medico/medico-historial/medico-historial.component')
+          .then(m => m.MedicoHistorialComponent)
       }
     ]
   },

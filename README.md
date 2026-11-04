@@ -15,6 +15,7 @@
 | Angular          | 21.x      |
 | Angular Material | 21.x      |
 | TypeScript       | ~5.9      |
+| Gráficos         | Chart.js 4.x |
 
 ---
 
@@ -109,7 +110,7 @@ src/
 │       ├── registro/         ← registro de paciente
 │       ├── perfil/           ← datos del usuario logueado
 │       ├── admin/            ← sección administrador (semana 2+)
-│       ├── medico/           ← sección médico (semana 2+)
+│       ├── medico/           ← panel médico, agenda, turnos e historial clínico
 │       ├── operador/         ← sección operador (semana 2+)
 │       ├── paciente/         ← sección paciente (semana 2+)
 │       ├── acceso-denegado/  ← 403
@@ -139,6 +140,13 @@ src/
 - ✅ Pantalla "Mi perfil" con datos de `GET /auth/perfil`
 - ✅ Guards por sesión (`authGuard`) y por rol (`rolGuard`)
 - ✅ Rutas separadas por rol: `/admin`, `/medico`, `/operador`, `/paciente`
+- ✅ Panel médico con agenda, turnos programados e historial clínico por paciente
 - ✅ Redirección a `/login` sin sesión, a `/acceso-denegado` con rol incorrecto
 - ✅ Página 404 para rutas inexistentes
-- ✅ Secciones de semanas futuras con pantalla "En construcción"
+- ✅ Secciones futuras de operador y paciente con pantalla "En construcción"
+
+## Reportes y estadísticas
+
+El panel de administración incluye un dashboard de turnos por especialidad y sede, ranking de médicos por turnos atendidos y tasa de cancelación. Un único rango de fechas actualiza todos los indicadores mediante `POST /reportesYEstadisticas/dashboard`.
+
+Los gráficos de barras y torta se implementan con **Chart.js 4.x**, una librería JavaScript compatible con Angular 21. El paquete se carga desde la página de reportes, que usa lazy loading.

@@ -1,0 +1,114 @@
+<section class="reportes" aria-labelledby="titulo-reportes">
+  <header class="encabezado">
+    <div>
+      <h2 id="titulo-reportes">Reportes y estadísticas</h2>
+      <p>Indicadores de turnos de la clínica para el período seleccionado.</p>
+    </div>
+    <a mat-stroked-button routerLink="/admin">Volver al panel</a>
+  </header>
+
+  <section class="filtros" aria-labelledby="titulo-filtros">
+    <div>
+      <h3 id="titulo-filtros">Período del reporte</h3>
+      <p>Al aplicar el rango se actualizan todos los indicadores a la vez.</p>
+    </div>
+    <form [formGroup]="rango" (ngSubmit)="aplicarRango()" class="formulario-fechas">
+      <mat-form-field appearance="outline">
+        <mat-label>Desde</mat-label>
+        <input matInput type="date" formControlName="desde" [max]="hoy">
+        @if (rango.controls.desde.hasError('required') && rango.controls.desde.touched) {
+          <mat-error>Elegí una fecha de inicio.</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Hasta</mat-label>
+        <input matInput type="date" formControlName="hasta" [max]="hoy">
+        @if (rango.controls.hasta.hasError('required') && rango.controls.hasta.touched) {
+          <mat-error>Elegí una fecha de fin.</mat-error>
+        }
+      </mat-form-field>
+      <button mat-flat-button color="primary" type="submit" [disabled]="cargando()">
+        <mat-icon>filter_alt</mat-icon>
+        {{ cargando() ? 'Actualizando...' : 'Aplicar período' }}
+      </button>
+    </form>
+  </section>
+
+  @if (errorMensaje()) {
+    <div class="mensaje-error" role="alert">
+      <mat-icon aria-hidden="true">error</mat-icon>
+      <span>{{ errorMensaje() }}</span>
+    </div>
+  }
+
+  @if (datos(); as reporte) {
+    <section class="indicadores" aria-label="Indicadores del período">
+      <article class="tarjeta-indicador">
+        <span class="etiqueta">Turnos del período</span>
+        <strong>{{ reporte.tasaCancelacion.total_turnos }}</strong>
+        <mat-icon aria-hidden="true">event</mat-icon>
+      </article>
+      <article class="tarjeta-indicador">
+        <span class="etiqueta">Turnos cancelados</span>
+        <strong>{{ reporte.tasaCancelacion.total_cancelados }}</strong>
+        <mat-icon aria-hidden="true">event_busy</mat-icon>
+      </article>
+      <article class="tarjeta-indicador">
+        <span class="etiqueta">Turnos efectivos</span>
+        <strong>{{ reporte.tasaCancelacion.total_efectivos }}</strong>
+        <mat-icon aria-hidden="true">task_alt</mat-icon>
+      </article>
+      <article class="tarjeta-indicador tarjeta-tasa">
+        <span class="etiqueta">Tasa de cancelación</span>
+        <strong>{{ reporte.tasaCancelacion.porcentaje_cancelacion }}%</strong>
+        <mat-icon aria-hidden="true">pie_chart</mat-icon>
+      </article>
+    </section>
+  }
+
+  @if (cargando() && !datos()) {
+    <p class="estado-cargando" role="status">Cargando los indicadores del período...</p>
+  }
+
+  <section class="graficos" aria-label="Gráficos de turnos">
+    <article class="tarjeta-grafico">
+      <h3>Turnos por especialidad</h3>
+      <div class="lienzo" [hidden]="!datos()">
+        <canvas #especialidadChart role="img" aria-label="Gráfico de barras de turnos por especialidad"></canvas>
+      </div>
+      @if (datos() && !datos()?.porEspecialidad?.length) {
+        <p class="sin-datos">No hay especialidades para mostrar.</p>
+      }
+    </article>
+
+    <article class="tarjeta-grafico">
+      <h3>Turnos por sede</h3>
+      <div class="lienzo" [hidden]="!datos()">
+        <canvas #sedeChart role="img" aria-label="Gráfico de barras de turnos por sede"></canvas>
+      </div>
+      @if (datos() && !datos()?.porSede?.length) {
+        <p class="sin-datos">No hay sedes para mostrar.</p>
+      }
+    </article>
+
+    <article class="tarjeta-grafico">
+      <h3>Ranking de médicos por turnos atendidos</h3>
+      <div class="lienzo lienzo-ranking" [hidden]="!datos()">
+        <canvas #medicoChart role="img" aria-label="Gráfico de barras del ranking de médicos por turnos atendidos"></canvas>
+      </div>
+      @if (datos() && !datos()?.rankingMedicos?.length) {
+        <p class="sin-datos">No hay médicos para mostrar.</p>
+      }
+    </article>
+
+    <article class="tarjeta-grafico tarjeta-cancelacion">
+      <h3>Proporción de cancelaciones</h3>
+      <div class="lienzo lienzo-torta" [hidden]="!datos() || datos()?.tasaCancelacion?.total_turnos === 0">
+        <canvas #cancelacionChart role="img" aria-label="Gráfico de torta de turnos cancelados y no cancelados"></canvas>
+      </div>
+      @if (datos() && datos()?.tasaCancelacion?.total_turnos === 0) {
+        <p class="sin-datos">No hay turnos en el período seleccionado.</p>
+      }
+    </article>
+  </section>
+</section>

@@ -63,7 +63,8 @@ export class HeaderComponent {
         ];
       case 'medico':
         return [
-          { label: 'Mis Turnos', ruta: '/medico' },
+          { label: 'Panel médico', ruta: '/medico' },
+          { label: 'Historial clínico', ruta: '/medico/historial' },
           { label: 'Mi Perfil', ruta: '/perfil' }
         ];
       case 'operador':

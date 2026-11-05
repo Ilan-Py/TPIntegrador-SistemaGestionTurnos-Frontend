@@ -38,7 +38,7 @@ export class HeaderComponent {
   notificaciones = this.notifService.notificaciones;
 
   noLeidas = computed(() =>
-    this.notificaciones().filter(n => !n.leida).length
+    this.notificaciones().filter(n => n.leida !== true && n.leida !== 1).length
   );
 
   nombreCompleto = computed(() => {

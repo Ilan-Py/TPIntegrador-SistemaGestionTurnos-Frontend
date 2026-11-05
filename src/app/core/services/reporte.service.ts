@@ -1,6 +1,6 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
+import { forkJoin, map, Observable, of, switchMap, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import {
@@ -34,11 +34,11 @@ export class ReporteService {
   dashboard(rango: RangoFechasReporte): Observable<RespuestaReporte<DashboardReportes>> {
     const especialidades$ = this.http
       .get<RespuestaReporte<EspecialidadItem[]>>(`${environment.apiUrl}/especialidades`)
-      .pipe(map(r => r.datos ?? []), catchError(() => of([] as EspecialidadItem[])));
+.pipe(map(r => this.datosRequeridos(r, 'especialidades')));
 
     const sedes$ = this.http
       .get<RespuestaReporte<SedeItem[]>>(`${environment.apiUrl}/sedes`)
-      .pipe(map(r => r.datos ?? []), catchError(() => of([] as SedeItem[])));
+      .pipe(map(r => this.datosRequeridos(r, 'sedes')));
 
     return forkJoin([especialidades$, sedes$]).pipe(
       switchMap(([especialidades, sedes]) => {
@@ -50,8 +50,13 @@ export class ReporteService {
               { ...rango, id_especialidad: e.id }
             )
             .pipe(
-              map(r => ({ nombre: e.descripcion, cantidad_turnos: (r.datos ?? []).length })),
-              catchError(() => of({ nombre: e.descripcion, cantidad_turnos: 0 }))
+map(r => ({
+                nombre: e.descripcion,
+                cantidad_turnos: this.datosRequeridos(r, 'turnos por especialidad').length
+              })),
+              catchError(error => this.sinResultados(error)
+                ? of({ nombre: e.descripcion, cantidad_turnos: 0 })
+                : throwError(() => error))
             )
         );
 
@@ -63,14 +68,24 @@ export class ReporteService {
               { ...rango, id_sede: s.id }
             )
             .pipe(
-              map(r => ({ nombre: s.nombre, cantidad_turnos: (r.datos ?? []).length })),
-              catchError(() => of({ nombre: s.nombre, cantidad_turnos: 0 }))
+map(r => ({
+                nombre: s.nombre,
+                cantidad_turnos: this.datosRequeridos(r, 'turnos por sede').length
+              })),
+              catchError(error => this.sinResultados(error)
+                ? of({ nombre: s.nombre, cantidad_turnos: 0 })
+                : throwError(() => error))
             )
         );
 
         const ranking$: Observable<RankingMedico[]> = this.http
           .post<RespuestaReporte<RankingMedico[]>>(`${this.base}/ranking-medicos`, rango)
-          .pipe(map(r => r.datos ?? []), catchError(() => of([] as RankingMedico[])));
+.pipe(
+            map(r => this.datosRequeridos(r, 'ranking de médicos')),
+            catchError(error => this.sinResultados(error)
+              ? of([] as RankingMedico[])
+              : throwError(() => error))
+          );
 
         const cancelacionVacia: TasaCancelacion = {
           total_cancelados: 0, total_efectivos: 0,
@@ -78,7 +93,12 @@ export class ReporteService {
         };
         const cancelacion$: Observable<TasaCancelacion> = this.http
           .post<RespuestaReporte<TasaCancelacion>>(`${this.base}/tasa-cancelacion`, rango)
-          .pipe(map(r => r.datos ?? cancelacionVacia), catchError(() => of(cancelacionVacia)));
+.pipe(
+            map(r => this.datosRequeridos(r, 'tasa de cancelación')),
+            catchError(error => this.sinResultados(error)
+              ? of(cancelacionVacia)
+              : throwError(() => error))
+          );
 
         const allEsp$  = porEsp$.length  ? forkJoin(porEsp$)  : of([] as CantidadPorCategoria[]);
         const allSede$ = porSede$.length ? forkJoin(porSede$) : of([] as CantidadPorCategoria[]);
@@ -97,5 +117,16 @@ export class ReporteService {
         );
       })
     );
+  }
+
+  private datosRequeridos<T>(respuesta: RespuestaReporte<T>, reporte: string): T {
+    if (respuesta.datos === null) {
+      throw new Error(`El backend no devolvió datos para ${reporte}.`);
+    }
+    return respuesta.datos;
+  }
+
+  private sinResultados(error: unknown): boolean {
+    return error instanceof HttpErrorResponse && error.status === 404;
   }
 }

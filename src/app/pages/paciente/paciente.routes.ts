@@ -2,7 +2,11 @@ import { Routes } from '@angular/router';
 
 // Rutas de la sección paciente. La protección por sesión y rol está en app.routes.ts.
 export const PACIENTE_ROUTES: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'mis-turnos' },
+  {
+    path: '',
+    pathMatch: 'full',
+    loadComponent: () => import('./paciente-home/paciente-home.component').then(m => m.PacienteHomeComponent)
+  },
   {
     path: 'nuevo-turno',
     loadComponent: () => import('./nuevo-turno/nuevo-turno.component').then(m => m.NuevoTurnoComponent)

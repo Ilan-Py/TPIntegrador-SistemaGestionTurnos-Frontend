@@ -1,0 +1,21 @@
+<div class="menu-operador">
+  <section class="bienvenida" aria-labelledby="titulo-operador">
+    <h1 id="titulo-operador">Bienvenido/a, {{ nombreOperador() }}</h1>
+    <p>Elegí una opción para gestionar la operación de la clínica.</p>
+  </section>
+
+  <nav class="opciones-operador" aria-label="Opciones del panel operador">
+    <a class="boton-operador" routerLink="agenda">
+      <span class="icono" aria-hidden="true">calendar_month</span>
+      Agenda y turnos
+    </a>
+    <a class="boton-operador" routerLink="alta-paciente">
+      <span class="icono" aria-hidden="true">person_add</span>
+      Alta de paciente
+    </a>
+    <a class="boton-operador" routerLink="asignar-turno">
+      <span class="icono" aria-hidden="true">event_available</span>
+      Asignar turno
+    </a>
+  </nav>
+</div>

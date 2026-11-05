@@ -1,0 +1,21 @@
+<div class="menu-paciente">
+  <section class="bienvenida" aria-labelledby="titulo-paciente">
+    <h1 id="titulo-paciente">Bienvenido/a, {{ nombrePaciente() }}</h1>
+    <p>¿Qué querés hacer hoy?</p>
+  </section>
+
+  <nav class="opciones-paciente" aria-label="Opciones del panel paciente">
+    <a class="boton-paciente" routerLink="nuevo-turno">
+      <span class="icono" aria-hidden="true">add_circle</span>
+      Nuevo turno
+    </a>
+    <a class="boton-paciente" routerLink="mis-turnos">
+      <span class="icono" aria-hidden="true">event_note</span>
+      Mis turnos
+    </a>
+    <a class="boton-paciente" routerLink="mis-datos">
+      <span class="icono" aria-hidden="true">manage_accounts</span>
+      Mis datos
+    </a>
+  </nav>
+</div>

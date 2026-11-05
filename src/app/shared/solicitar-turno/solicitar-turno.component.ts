@@ -240,15 +240,10 @@ export class SolicitarTurnoComponent implements OnInit {
       },
       error: (err: unknown) => {
         this.cargando.set(null);
-        const mensaje = mensajeError(err, 'No se pudo confirmar el turno.');
-        const horarioNoDisponible = /horario.*(ocupado|disponible)|no existe agenda/i.test(mensaje);
-        this.errorMensaje.set(
-          horarioNoDisponible ? `${mensaje} Elegí otro horario.` : mensaje
-        );
-        if (horarioNoDisponible) {
-          this.pasoHorario.controls.hora.setValue(null);
-          this.cargarHorarios(true);
-        }
+        // Por ejemplo, el horario se ocupó mientras tanto: se informa y se vuelve a elegir horario.
+        this.errorMensaje.set(mensajeError(err, 'No se pudo confirmar el turno.') + ' Elegí otro horario.');
+        this.pasoHorario.controls.hora.setValue(null);
+        this.cargarHorarios(true);
       }
     });
   }

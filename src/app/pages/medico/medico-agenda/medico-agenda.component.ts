@@ -7,8 +7,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { AuthService } from '../../../core/services/auth.service';
+import { EspecialidadService } from '../../../core/services/especialidad.service';
 import { HorarioService } from '../../../core/services/horario.service';
-import { MedicoService } from '../../../core/services/medico.service';
 import { SedeService } from '../../../core/services/sede.service';
 import { Especialidad } from '../../../models/especialidad.model';
 import { DatosHorarioMedico, HorarioMedico } from '../../../models/horario.model';
@@ -44,7 +44,7 @@ export class MedicoAgendaComponent implements OnInit {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private horarioService = inject(HorarioService);
-  private medicoService = inject(MedicoService);
+  private especialidadService = inject(EspecialidadService);
   private sedeService = inject(SedeService);
 
   readonly usuario = this.auth.usuario;
@@ -191,44 +191,52 @@ export class MedicoAgendaComponent implements OnInit {
   }
 
   private cargarCatalogos(): void {
+    const usuario = this.usuario();
+    const idsEspecialidades = Array.isArray(usuario?.id_especialidades)
+      ? usuario.id_especialidades.map(Number).filter(Number.isInteger)
+      : [];
+    const nombresEspecialidades = Array.isArray(usuario?.especialidades)
+      ? usuario.especialidades
+        .filter((nombre): nombre is string => typeof nombre === 'string')
+        .map(nombre => this.normalizarTexto(nombre))
+      : [];
     let respuestasPendientes = 2;
     const finalizarCarga = (): void => {
       respuestasPendientes--;
       if (respuestasPendientes === 0) this.cargandoCatalogos.set(false);
     };
 
-    const medicoId = this.usuario()?.id;
-    if (!medicoId) {
-      this.mensajeCatalogos.set('No se pudo identificar al médico de la sesión.');
-      finalizarCarga();
-    } else {
-      this.medicoService.listar().subscribe({
-        next: respuesta => {
-          if (respuesta.datos) {
-            const medico = respuesta.datos.find(usuario => Number(usuario.id) === Number(medicoId));
-            const especialidadesMedico = medico?.especialidades ?? [];
-            this.especialidades.set(especialidadesMedico);
-            if (especialidadesMedico.length === 1) {
-              this.form.controls.id_especialidad.setValue(Number(especialidadesMedico[0].id));
-            }
-            if (especialidadesMedico.length === 0) {
-              this.mensajeCatalogos.set(
-                'No se encontraron especialidades asociadas a tu usuario. Verificá la relación médico-especialidad en la base de datos.'
-              );
-            } else {
-              this.mensajeCatalogos.set('');
-            }
-          } else {
-            this.mensajeCatalogos.set(respuesta.estado || 'No se pudieron cargar tus especialidades.');
+    this.especialidadService.listar().subscribe({
+      next: respuesta => {
+        if (respuesta.datos) {
+          let especialidadesMedico = respuesta.datos.filter(especialidad =>
+            idsEspecialidades.includes(Number(especialidad.id)) ||
+            nombresEspecialidades.includes(this.normalizarTexto(especialidad.descripcion))
+          );
+          // Si el perfil no incluye asociaciones y el catálogo tiene una sola opción, no hay otra especialidad para ofrecer.
+          if (especialidadesMedico.length === 0 && idsEspecialidades.length === 0 &&
+            nombresEspecialidades.length === 0 && respuesta.datos.length === 1) {
+            especialidadesMedico = respuesta.datos;
           }
-          finalizarCarga();
-        },
-        error: (error: unknown) => {
-          this.mensajeCatalogos.set(this.mensajeError(error, 'No se pudieron cargar tus especialidades.'));
-          finalizarCarga();
+          this.especialidades.set(especialidadesMedico);
+          if (especialidadesMedico.length === 1) {
+            this.form.controls.id_especialidad.setValue(Number(especialidadesMedico[0].id));
+          }
+          if (especialidadesMedico.length === 0) {
+            this.mensajeCatalogos.set('Tu usuario no tiene especialidades asignadas.');
+          } else {
+            this.mensajeCatalogos.set('');
+          }
+        } else {
+          this.mensajeCatalogos.set(respuesta.estado || 'No se pudieron cargar tus especialidades.');
         }
-      });
-    }
+        finalizarCarga();
+      },
+      error: (error: unknown) => {
+        this.mensajeCatalogos.set(this.mensajeError(error, 'No se pudieron cargar tus especialidades.'));
+        finalizarCarga();
+      }
+    });
 
     this.sedeService.listar().subscribe({
       next: respuesta => {
@@ -288,6 +296,10 @@ export class MedicoAgendaComponent implements OnInit {
     const sedeAsignada = this.usuario()?.id_sede;
     if (sedeAsignada && this.sedes().some(sede => sede.id === sedeAsignada)) return sedeAsignada;
     return this.sedes().length === 1 ? this.sedes()[0].id : 0;
+  }
+
+  private normalizarTexto(texto: string): string {
+    return texto.trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase();
   }
 
   private mensajeError(error: unknown, alternativo: string): string {

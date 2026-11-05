@@ -218,6 +218,10 @@ export class AdminReportesComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   private mensajeError(error: unknown): string {
+    if (error instanceof Error && !(error instanceof HttpErrorResponse)) {
+      return error.message;
+    }
+
     if (error instanceof HttpErrorResponse) {
       const payload: unknown = error.error;
       if (

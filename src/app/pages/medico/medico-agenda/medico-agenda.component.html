@@ -1,0 +1,163 @@
+<section class="agenda" aria-labelledby="titulo-agenda">
+  <header class="encabezado">
+    <div>
+      <p class="saludo">Panel médico</p>
+      <h2 id="titulo-agenda">Mi agenda</h2>
+      <p>Hola, {{ nombreMedico() }}. Consultá y administrá tus rangos de atención.</p>
+    </div>
+    <mat-form-field appearance="outline" class="selector-fecha">
+      <mat-label>Fecha de agenda</mat-label>
+      <input
+        matInput
+        type="date"
+        [value]="fechaSeleccionada()"
+        (change)="cambiarFechaDesdeEvento($event)"
+        aria-label="Seleccionar fecha de agenda"
+      >
+    </mat-form-field>
+  </header>
+
+  @if (mensajeCatalogos()) {
+    <div class="mensaje aviso" role="status">
+      <mat-icon>info</mat-icon>
+      {{ mensajeCatalogos() }}
+    </div>
+  }
+
+  <section class="formulario" aria-labelledby="titulo-formulario">
+    <h3 id="titulo-formulario">
+      {{ editandoId() === null ? 'Agregar rango horario' : 'Modificar rango horario' }}
+    </h3>
+    <p>Podés cargar varios rangos para una misma fecha.</p>
+
+    <form [formGroup]="form" (ngSubmit)="guardar()">
+      <div class="campos-formulario">
+        <mat-form-field appearance="outline">
+          <mat-label>Fecha</mat-label>
+          <input matInput type="date" formControlName="fecha">
+          @if (form.controls.fecha.hasError('required') && form.controls.fecha.touched) {
+            <mat-error>La fecha es obligatoria.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Hora de entrada</mat-label>
+          <input matInput type="time" formControlName="hora_entrada">
+          @if (form.controls.hora_entrada.hasError('required') && form.controls.hora_entrada.touched) {
+            <mat-error>La hora de entrada es obligatoria.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Hora de salida</mat-label>
+          <input matInput type="time" formControlName="hora_salida">
+          @if (form.controls.hora_salida.hasError('required') && form.controls.hora_salida.touched) {
+            <mat-error>La hora de salida es obligatoria.</mat-error>
+          }
+          @if (form.hasError('rangoHorario') && form.controls.hora_salida.touched) {
+            <mat-error>La hora de salida debe ser posterior a la de entrada.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Especialidad</mat-label>
+          <mat-select formControlName="id_especialidad">
+            @for (especialidad of especialidades(); track especialidad.id) {
+              <mat-option [value]="especialidad.id">{{ especialidad.descripcion }}</mat-option>
+            }
+          </mat-select>
+          @if (form.controls.id_especialidad.invalid && form.controls.id_especialidad.touched) {
+            <mat-error>Seleccioná una especialidad asignada.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Sede</mat-label>
+          <mat-select formControlName="id_sede">
+            @for (sede of sedes(); track sede.id) {
+              <mat-option [value]="sede.id">{{ sede.nombre }}</mat-option>
+            }
+          </mat-select>
+          @if (form.controls.id_sede.invalid && form.controls.id_sede.touched) {
+            <mat-error>Seleccioná una sede.</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      @if (errorMensaje()) {
+        <div class="mensaje error" role="alert">
+          <mat-icon>error</mat-icon>
+          {{ errorMensaje() }}
+        </div>
+      }
+
+      <div class="acciones-formulario">
+        <button
+          mat-flat-button
+          color="primary"
+          type="submit"
+          [disabled]="guardando() || cargandoCatalogos() || especialidades().length === 0 || sedes().length === 0"
+        >
+          <mat-icon>{{ editandoId() === null ? 'add' : 'save' }}</mat-icon>
+          {{ guardando() ? 'Guardando...' : editandoId() === null ? 'Agregar rango' : 'Guardar cambios' }}
+        </button>
+        @if (editandoId() !== null) {
+          <button mat-stroked-button type="button" (click)="cancelarEdicion()" [disabled]="guardando()">
+            Cancelar edición
+          </button>
+        }
+      </div>
+    </form>
+  </section>
+
+  <section class="listado" aria-labelledby="titulo-listado">
+    <h3 id="titulo-listado">Agenda del {{ fechaSeleccionada() }}</h3>
+    @if (cargandoAgenda()) {
+      <p class="estado" role="status">Cargando agenda...</p>
+    } @else if (horarios().length === 0) {
+      <p class="estado">No tenés rangos horarios para esta fecha.</p>
+    } @else {
+      <div class="tabla-contenedor">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Horario</th>
+              <th scope="col">Especialidad</th>
+              <th scope="col">Sede</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (horario of horarios(); track horario.id) {
+              <tr>
+                <td>{{ horario.hora_entrada.slice(0, 5) }} – {{ horario.hora_salida.slice(0, 5) }}</td>
+                <td>{{ horario.especialidad || nombreEspecialidad(horario.id_especialidad) }}</td>
+                <td>{{ horario.sede || nombreSede(horario.id_sede) }}</td>
+                <td class="acciones">
+                  <button
+                    mat-icon-button
+                    type="button"
+                    aria-label="Modificar rango horario"
+                    (click)="editar(horario)"
+                    [disabled]="guardando() || eliminandoId() !== null"
+                  >
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button
+                    mat-icon-button
+                    type="button"
+                    aria-label="Eliminar rango horario"
+                    (click)="eliminar(horario)"
+                    [disabled]="eliminandoId() === horario.id || guardando()"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</section>

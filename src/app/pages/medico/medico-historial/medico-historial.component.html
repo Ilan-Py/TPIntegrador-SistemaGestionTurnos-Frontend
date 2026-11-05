@@ -1,0 +1,112 @@
+<section class="historial" aria-labelledby="titulo-historial">
+  <header class="encabezado">
+    <div>
+      <h2 id="titulo-historial">Historial clínico</h2>
+      <p>Buscá un paciente para consultar los registros de los turnos que atendiste.</p>
+    </div>
+    <a mat-stroked-button routerLink="/medico">Volver al panel</a>
+  </header>
+
+  <form class="busqueda" [formGroup]="form" (ngSubmit)="buscar()">
+    <mat-form-field appearance="outline">
+      <mat-label>Buscar por</mat-label>
+      <mat-select formControlName="criterio" (selectionChange)="cambiarCriterio()">
+        <mat-option value="dni">DNI</mat-option>
+        <mat-option value="apellido">Apellido</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="campo-termino">
+      <mat-label>{{ form.controls.criterio.value === 'dni' ? 'DNI del paciente' : 'Apellido del paciente' }}</mat-label>
+      <input
+        matInput
+        formControlName="valor"
+        [attr.inputmode]="form.controls.criterio.value === 'dni' ? 'numeric' : 'text'"
+        [maxlength]="form.controls.criterio.value === 'dni' ? 8 : 30"
+        autocomplete="off"
+      >
+      @if (form.controls.valor.hasError('required') && form.controls.valor.touched) {
+        <mat-error>Ingresá un {{ form.controls.criterio.value === 'dni' ? 'DNI' : 'apellido' }}.</mat-error>
+      }
+    </mat-form-field>
+
+    <button mat-flat-button color="primary" type="submit" [disabled]="buscando()">
+      <mat-icon>search</mat-icon>
+      {{ buscando() ? 'Buscando...' : 'Buscar paciente' }}
+    </button>
+  </form>
+
+  @if (errorMensaje()) {
+    <div class="mensaje error" role="alert">
+      <mat-icon>error</mat-icon>
+      {{ errorMensaje() }}
+    </div>
+  }
+
+  @if (pacientes().length > 0) {
+    <section class="resultados" aria-labelledby="titulo-resultados">
+      <h3 id="titulo-resultados">Resultados de búsqueda</h3>
+      <ul>
+        @for (paciente of pacientes(); track paciente.id) {
+          <li>
+            <button
+              type="button"
+              class="paciente"
+              [class.seleccionado]="pacienteSeleccionado()?.id === paciente.id"
+              [attr.aria-pressed]="pacienteSeleccionado()?.id === paciente.id"
+              (click)="seleccionarPaciente(paciente)"
+            >
+              <span class="icono-paciente" aria-hidden="true">
+                <mat-icon>person</mat-icon>
+              </span>
+              <span class="datos-paciente">
+                <strong>{{ paciente.apellido }}, {{ paciente.nombre }}</strong>
+                <span>DNI {{ paciente.dni }} · {{ paciente.edad ?? 'Edad no disponible' }}{{ paciente.edad !== null ? ' años' : '' }}</span>
+              </span>
+              <mat-icon aria-hidden="true">chevron_right</mat-icon>
+            </button>
+          </li>
+        }
+      </ul>
+    </section>
+  } @else if (mensajeResultados()) {
+    <p class="estado" role="status">{{ mensajeResultados() }}</p>
+  }
+
+  @if (pacienteSeleccionado(); as paciente) {
+    <section class="registros" aria-labelledby="titulo-registros">
+      <div class="titulo-registros">
+        <div>
+          <h3 id="titulo-registros">Historial de {{ paciente.nombre }} {{ paciente.apellido }}</h3>
+          <p>DNI {{ paciente.dni }}</p>
+        </div>
+      </div>
+
+      @if (cargandoHistorial()) {
+        <p class="estado" role="status">Cargando historial clínico...</p>
+      } @else if (registros().length === 0 && !errorMensaje()) {
+        <p class="estado">No hay registros de turnos atendidos por vos para este paciente.</p>
+      } @else {
+        <div class="lista-registros">
+          @for (registro of registros(); track registro.id) {
+            <article class="registro">
+              <header class="encabezado-registro">
+                <div>
+                  <h4>{{ registro.diagnostico }}</h4>
+                  <p>Turno del {{ fechaLegible(registro.fecha_turno) }} · {{ registro.hora_turno.slice(0, 5) }}</p>
+                </div>
+                <span class="fecha-registro">Registrado {{ fechaLegible(registro.fecha_registro) }}</span>
+              </header>
+              @if (registro.tratamiento) {
+                <p><strong>Tratamiento:</strong> {{ registro.tratamiento }}</p>
+              }
+              @if (registro.observaciones) {
+                <p><strong>Observaciones:</strong> {{ registro.observaciones }}</p>
+              }
+            </article>
+          }
+        </div>
+      }
+    </section>
+  }
+</section>

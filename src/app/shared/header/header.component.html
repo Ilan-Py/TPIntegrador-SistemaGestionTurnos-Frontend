@@ -16,17 +16,43 @@
       <a mat-button [routerLink]="item.ruta">{{ item.label }}</a>
     }
 
-    @if (rol() === 'administrador') {
-      <a mat-stroked-button routerLink="/admin/auditoria" class="btn-auditoria">
-        <mat-icon>fact_check</mat-icon>
-        Auditoría
-      </a>
-    }
-
-    <!-- Campana de notificaciones (semana 3) -->
-    <button mat-icon-button matTooltip="Notificaciones (próximamente)" disabled>
-      <mat-icon>notifications</mat-icon>
+    <!-- Campana de notificaciones -->
+    <button mat-icon-button
+            [matMenuTriggerFor]="notifMenu"
+            matTooltip="Notificaciones"
+            class="btn-campana">
+      <mat-icon
+        [matBadge]="noLeidas() > 0 ? noLeidas() : null"
+        matBadgeColor="warn"
+        matBadgeSize="small">
+        notifications
+      </mat-icon>
     </button>
+
+    <mat-menu #notifMenu="matMenu" class="notif-menu">
+      <div class="notif-header">Notificaciones</div>
+      <mat-divider></mat-divider>
+
+      @if (notificaciones().length === 0) {
+        <p class="notif-vacia">No tenés notificaciones.</p>
+      }
+
+      @for (n of notificaciones(); track n.id) {
+        <div class="notif-item" [class.notif-no-leida]="!esLeida(n)">
+          <span class="notif-mensaje">{{ n.mensaje }}</span>
+          <span class="notif-fecha">{{ n.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
+          @if (!esLeida(n)) {
+            <button mat-icon-button
+                    class="btn-leida"
+                    matTooltip="Marcar como leída"
+                    (click)="marcarLeida(n.id, $event)">
+              <mat-icon>done</mat-icon>
+            </button>
+          }
+        </div>
+        <mat-divider></mat-divider>
+      }
+    </mat-menu>
 
     <!-- Info del usuario -->
     <button mat-icon-button [matTooltip]="etiquetaRol()" [matMenuTriggerFor]="userMenu">
